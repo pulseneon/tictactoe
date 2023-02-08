@@ -1,0 +1,5 @@
+language: "Русский"
+
+# set languages
+curr_chat_lang: "привет"
+set_chat_lang: "выбран русский"
