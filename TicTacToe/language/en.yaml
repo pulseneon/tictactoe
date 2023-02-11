@@ -1,0 +1,6 @@
+available: true
+language: "English"
+
+# set languages
+curr_chat_lang: "hello"
+set_chat_lang: "en selected"
