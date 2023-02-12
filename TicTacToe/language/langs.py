@@ -23,6 +23,12 @@ class Language:
             # changing the language to basic and return his
             return self.get_default_string(string)
 
+    def get_string_by_lang(self, string: str, lang: str) -> str:
+        try:
+            return self.languages[lang][string]
+        except KeyError:
+            return self.get_default_string(string)
+
     def get_default_string(self, string: str) -> str:
         en_string = self.languages['en'].get(string)
         if en_string is None:
@@ -51,6 +57,12 @@ class Language:
                 to_return.append(lang)
         return to_return
 
+    def get_languages_names(self) -> list:
+        to_return = []
+        for lang in self.languages:
+            if (self.languages[lang]['available']):
+                to_return.append(self.languages[lang]['language'])
+        return to_return
 
 languages = Language()
 

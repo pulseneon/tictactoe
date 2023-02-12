@@ -2,5 +2,6 @@ available: true
 language: "English"
 
 # set languages
-curr_chat_lang: "hello"
-set_chat_lang: "en selected"
+language_suggestion: "Choose a language from the suggested ones"
+curr_chat_lang: "s"
+set_chat_lang: ""
