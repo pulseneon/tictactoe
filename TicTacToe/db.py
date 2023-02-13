@@ -4,6 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import sessionmaker
 
+from TicTacToe.models.user import User
+
 class Base(DeclarativeBase): pass
 
 class Database:
@@ -21,5 +23,20 @@ class Database:
         Base.metadata.create_all(bind=engine) # create db ?
         Session = sessionmaker(autoflush=False, bind=engine)
 
-    def register_user(self, user) -> True or False:
-        pass
+    def register_user(self, message, selected_lang) -> True or False:
+        with self.Session(autoflush=False, bind=self.engine) as db:
+            new_user = User(
+                user_id = message.from_user.id,
+                username = message.from_user.username,
+                firstname = message.from_user.first_name,
+                lastname = message.from_user.last_name,
+                games_count = 0,
+                lose_count = 0,
+                wins_count = 0,
+                lang = selected_lang
+            )
+            
+            db.add(new_user)
+            db.commit()
+            print(new_user.id)
+        return True

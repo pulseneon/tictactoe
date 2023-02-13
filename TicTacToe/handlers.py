@@ -19,4 +19,3 @@ class Handlers:
 
     def _handle_help(self, message):
         msg = self.bot.send_message(message.chat.id, f'use /start', parse_mode='markdown')
-    
