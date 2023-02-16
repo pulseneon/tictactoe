@@ -1,8 +1,9 @@
+import datetime
 import os
 from dotenv import load_dotenv
-from sqlalchemy import BigInteger, Column, Integer, String, create_engine
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import BigInteger, Boolean, Column, DateTime, Integer, String, create_engine, ForeignKey, func
+from sqlalchemy.orm import DeclarativeBase, relationship, sessionmaker
+
 
 class Base(DeclarativeBase): pass
 
@@ -16,7 +17,33 @@ class User(Base):
     games_count = Column(Integer)
     lose_count = Column(Integer)
     wins_count = Column(Integer)
+    rating = Column(Integer) # at least zero initially 100 and give 5 for win
     lang = Column(String)
+    game_id = Column(Integer) # if None => user in menu
+
+class Game(Base):
+    __tablename__ = "game"
+    id = Column(Integer, primary_key=True, index=True)
+    gamefield_id = Column(Integer, ForeignKey("gamefield.id"), nullable=False)
+    first_player_id = Column(BigInteger, nullable=False) # изначально крестики
+    second_player_id = Column(BigInteger, nullable=False) # изначально нолики
+    move_player = Column(Boolean, nullable=False, default=True)
+    created_on = Column(DateTime(timezone=True), default=func.now())
+
+
+class Gamefield(Base):
+    __tablename__ = "gamefield"
+    game = relationship("Game") # 0 - пусто, 1 - крестик, 2 - нолик
+    id = Column(Integer, primary_key=True, index=True)
+    field1 = Column(Integer, nullable=False, default=0)
+    field2 = Column(Integer, nullable=False, default=0)
+    field3 = Column(Integer, nullable=False, default=0) 
+    field4 = Column(Integer, nullable=False, default=0)
+    field5 = Column(Integer, nullable=False, default=0)
+    field6 = Column(Integer, nullable=False, default=0)
+    field7 = Column(Integer, nullable=False, default=0)
+    field8 = Column(Integer, nullable=False, default=0)
+    field9 = Column(Integer, nullable=False, default=0)
 
 class Database:
     load_dotenv()
@@ -26,6 +53,10 @@ class Database:
     db_name = os.getenv('DB_DATABASE')
     engine = create_engine(f"postgresql://{db_user}:{db_pass}@{db_host}/{db_name}")
     Base.metadata.create_all(bind=engine)   
+
+    def clear_database(self):
+        Base.metadata.drop_all(bind=self.engine)
+        Base.metadata.create_all(bind=self.engine)  
     
     def register_user(self, message, selected_lang):
         Session = sessionmaker(autoflush=False, bind=self.engine)
@@ -56,3 +87,30 @@ class Database:
                 return user
             
         return None
+    
+    def create_game(self, user_id_1, user_id_2) -> object:
+        if self.find_user(user_id_1).game_id is not None or \
+            self.find_user(user_id_2).game_id is not None:
+            return False
+        
+        if user_id_1 == user_id_2:
+            return False
+
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        with Session(autoflush=False, bind=self.engine) as db:
+            new_gamefield = Gamefield()
+            db.add(new_gamefield)
+            db.commit()
+
+            new_game = Game(
+                gamefield_id = new_gamefield.id,
+                first_player_id = user_id_1,
+                second_player_id = user_id_2
+            )
+
+            db.add(new_game)
+            db.commit()
+            db.close()
+
+        return new_game
+
