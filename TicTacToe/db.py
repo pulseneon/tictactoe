@@ -114,3 +114,20 @@ class Database:
 
         return new_game
 
+    def find_game(self, game_id) -> object:
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        with Session(autoflush=False, bind=self.engine) as db:
+            game = db.query(Game).filter(Game.id == game_id).first()
+            db.close()
+            if game is not None:
+                return game
+        return None
+    
+    def find_gamefield(self, gamefield_id) -> object:
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        with Session(autoflush=False, bind=self.engine) as db:
+            gamefield = db.query(Gamefield).filter(Gamefield.id == gamefield_id).first()
+            db.close()
+            if gamefield is not None:
+                return gamefield
+        return None

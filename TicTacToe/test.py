@@ -24,14 +24,17 @@ bot = telebot.TeleBot(os.getenv('TOKEN'))
 print(os.getenv('TOKEN'))
 db = Database()
 
-db.clear_database()
+# db.clear_database()
 
-@bot.message_handler(commands=['start'])
-def start(message):
-    print(db.register_user(message, "ru"))
-    print(db.create_game(message.from_user.id, message.from_user.id))
+# @bot.message_handler(commands=['start'])
+# def start(message):
+#     print(db.register_user(message, "ru"))
+#     print(db.create_game(message.from_user.id, message.from_user.id))
 
-bot.polling(none_stop=True)
+# bot.polling(none_stop=True)
+
+print(db.find_game(1).created_on)
+print(db.find_gamefield(db.find_game(1).gamefield_id).field1)
 
 
 
