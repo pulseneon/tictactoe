@@ -27,9 +27,8 @@ class Game(Base):
     gamefield_id = Column(Integer, ForeignKey("gamefield.id"), nullable=False)
     first_player_id = Column(BigInteger, nullable=False) # изначально крестики
     second_player_id = Column(BigInteger, nullable=False) # изначально нолики
-    move_player = Column(Boolean, nullable=False, default=True)
+    move_player = Column(Boolean, nullable=False, default=True) 
     created_on = Column(DateTime(timezone=True), default=func.now())
-
 
 class Gamefield(Base):
     __tablename__ = "gamefield"
@@ -109,6 +108,17 @@ class Database:
             )
 
             db.add(new_game)
+
+            # refresh users game_id
+            user_one = self.find_user(user_id_1)
+            user_two = self.find_user(user_id_2)
+            user_one.game_id = new_game.id
+            user_two.game_id = new_game.id
+            db.delete(user_one)
+            db.delete(user_two)
+            db.add(user_one)
+            db.add(user_two)
+
             db.commit()
             db.close()
 
