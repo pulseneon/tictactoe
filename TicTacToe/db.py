@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import BigInteger, Boolean, Column, DateTime, Integer, String, create_engine, ForeignKey, func
 from sqlalchemy.orm import DeclarativeBase, relationship, sessionmaker
+from env import DB_USER, DB_NAME, DB_HOST, DB_PASS
 
 
 class Base(DeclarativeBase): pass
@@ -45,12 +46,7 @@ class Gamefield(Base):
     field9 = Column(Integer, nullable=False, default=0)
 
 class Database:
-    load_dotenv()
-    db_user = os.getenv('DB_USER')
-    db_pass = os.getenv('DB_PASSWORD')
-    db_host = os.getenv('DB_HOST')
-    db_name = os.getenv('DB_DATABASE')
-    engine = create_engine(f"postgresql://{db_user}:{db_pass}@{db_host}/{db_name}")
+    engine = create_engine(f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}")
     Base.metadata.create_all(bind=engine)   
 
     def clear_database(self):

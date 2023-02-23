@@ -1,13 +1,10 @@
-import os
 import sys
 import telebot
-from dotenv import load_dotenv
-
 from handlers import Handlers
+from env import TOKEN
 
 try:
-    load_dotenv()
-    bot = telebot.TeleBot(os.getenv('TOKEN'))
+    bot = telebot.TeleBot(TOKEN)
 except Exception as e:
     # write log
     sys.exit(1)
