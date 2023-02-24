@@ -46,8 +46,8 @@ class Handlers:
             return
         
         game = db.create_game(playerX, playerO)
-        self.bot.send_message(chat_id=playerX, text="Ты крестик", reply_markup=gamefield())
-        self.bot.send_message(chat_id=playerO, text="Ты нолик", reply_markup=gamefield())
+        self.bot.send_message(chat_id=playerX, text="Ты крестик", reply_markup = gamefield())
+        self.bot.send_message(chat_id=playerO, text="Ты нолик", reply_markup = gamefield())
 
     def _handle_register(self, data):
         print(data.data) # cb_ru

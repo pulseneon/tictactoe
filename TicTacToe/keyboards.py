@@ -1,4 +1,5 @@
-import types
+#import types
+from telebot import types
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from language.langs import Language

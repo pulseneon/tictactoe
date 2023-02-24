@@ -2,7 +2,7 @@ import os
 import yaml
 from db import Database
 
-LANGS_PATH = r'./tictactoe/TicTacToe/language/'
+LANGS_PATH = r'./TicTacToe/language/'
 
 class Language:
     def __init__(self) -> None:
