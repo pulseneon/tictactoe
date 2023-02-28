@@ -83,6 +83,17 @@ class Database:
             
         return None
     
+    def find_user_by_tag(self, user_tag) -> object:
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        user_tag = user_tag[1:] # убираем @
+
+        with Session(autoflush=False, bind=self.engine) as db:
+            user = db.query(User).filter(User.username == user_tag).first()
+            db.close()
+            if user is not None:
+                return user
+        return None
+
     def create_game(self, user_id_1, user_id_2) -> object:
         if self.find_user(user_id_1).game_id is not None or \
             self.find_user(user_id_2).game_id is not None:
