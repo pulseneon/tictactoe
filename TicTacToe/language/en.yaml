@@ -3,5 +3,5 @@ language: "English"
 
 # set languages
 language_suggestion: "Choose a language from the suggested ones"
-curr_chat_lang: "s"
-set_chat_lang: ""
+successfully_registered: "You are registered"
+type_of_game: "Choose the type of game"

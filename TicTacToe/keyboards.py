@@ -7,7 +7,7 @@ from language.langs import Language
 def main_keyboard():
     markup = InlineKeyboardMarkup()
     markup.row_width = 3
-    markup.add(InlineKeyboardButton('Играть с другом', callback_data=f'main:play_with_user')) # напишите его nickname или telegram id 
+    markup.add(InlineKeyboardButton('Играть', callback_data=f'main:play')) # напишите его nickname или telegram id 
     markup.add(InlineKeyboardButton('Играть с AI', callback_data=f'main:play_with_bot')) # выберите сложность: легкая/средняя/тяжелая
     markup.add(InlineKeyboardButton('Статистика', callback_data=f'main:stats')) # статистика профиля
     markup.add(InlineKeyboardButton('Рейтинг', callback_data=f'main:rate')) # рейтинг всех игроков 
@@ -27,6 +27,13 @@ def main_keyboard():
     markup.add(InlineKeyboardButton('Настройки', callback_data=f'main:settings')) # сменить язык / сброс статистики
     return markup
 
+def choose_game_type():
+    markup = InlineKeyboardMarkup()
+    markup.add(InlineKeyboardButton('Играть с рандомным игроком', callback_data=f'choose_game_type:random')) 
+    markup.add(InlineKeyboardButton('Играть с другом', callback_data=f'choose_game_type:find'))
+    
+    return markup
+
 def lang_keyboard():
     markup = InlineKeyboardMarkup()
     markup.row_width = 3
@@ -38,7 +45,7 @@ def lang_keyboard():
 
     for item in available_langs:
         markup.add(InlineKeyboardButton(available_langs_names[i], callback_data=f'lang:{item}'))
-        i=+1
+        i+=1
 
     return markup
 
@@ -51,8 +58,9 @@ def ready_keyaboard():
 
 def difficulty_keyboard():
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton('Готов', callback_data=f'main:play_with_bot')) 
-    markup.add(InlineKeyboardButton('Не готов', callback_data=f'main:stats'))
+    markup.add(InlineKeyboardButton('Легкая', callback_data=f'difficulty:easy')) 
+    markup.add(InlineKeyboardButton('Средняя', callback_data=f'difficulty:middle'))
+    markup.add(InlineKeyboardButton('Тяжелая', callback_data=f'difficulty:hard'))
 
     return markup
 

@@ -12,7 +12,8 @@ class Commands:
 
     # /start
     def start(self, message):
-        text = f'{self.langs.get_string_by_lang("language_suggestion", "ru")}\n\n{self.langs.get_string_by_lang("language_suggestion", "en")}'
+        get_str = self.langs.get_string_by_lang
+        text = f'{get_str("language_suggestion", "ru")}\n\n{get_str("language_suggestion", "en")}'
         msg = self.bot.send_message(message.chat.id, text, parse_mode='markdown', reply_markup=lang_keyboard())
 
     # /menu вывод меню мало ли что 
