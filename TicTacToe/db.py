@@ -8,6 +8,7 @@ from env import DB_USER, DB_NAME, DB_HOST, DB_PASS
 
 class Base(DeclarativeBase): pass
 
+
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
@@ -18,27 +19,29 @@ class User(Base):
     games_count = Column(Integer)
     lose_count = Column(Integer)
     wins_count = Column(Integer)
-    rating = Column(Integer, default=100) # at least zero initially 100 and give 5 for win
+    rating = Column(Integer, default=100)  # at least zero initially 100 and give 5 for win
     lang = Column(String)
-    game_id = Column(Integer) # if None => user in menu
+    game_id = Column(Integer, nullable=False, default=-1)  # if -1 => user in menu
+
 
 class Game(Base):
     __tablename__ = "game"
     id = Column(Integer, primary_key=True, index=True)
     gamefield_id = Column(Integer, ForeignKey("gamefield.id"), nullable=False)
-    first_player_id = Column(BigInteger, nullable=False) # изначально крестики
-    second_player_id = Column(BigInteger, nullable=False) # изначально нолики
-    move_player = Column(Boolean, nullable=False, default=True) 
+    first_player_id = Column(BigInteger, nullable=False)  # изначально крестики
+    second_player_id = Column(BigInteger, nullable=False)  # изначально нолики
+    move_player = Column(Boolean, nullable=False, default=True)
     created_on = Column(DateTime(timezone=True), default=func.now())
     # game_id = Column(Integer, primary_key=True, index=True)
 
+
 class Gamefield(Base):
     __tablename__ = "gamefield"
-    game = relationship("Game") # 0 - пусто, 1 - крестик, 2 - нолик
+    game = relationship("Game")  # 0 - пусто, 1 - крестик, 2 - нолик
     id = Column(Integer, primary_key=True, index=True)
     field1 = Column(Integer, nullable=False, default=0)
     field2 = Column(Integer, nullable=False, default=0)
-    field3 = Column(Integer, nullable=False, default=0) 
+    field3 = Column(Integer, nullable=False, default=0)
     field4 = Column(Integer, nullable=False, default=0)
     field5 = Column(Integer, nullable=False, default=0)
     field6 = Column(Integer, nullable=False, default=0)
@@ -46,34 +49,35 @@ class Gamefield(Base):
     field8 = Column(Integer, nullable=False, default=0)
     field9 = Column(Integer, nullable=False, default=0)
 
+
 class Database:
     engine = create_engine(f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}")
-    Base.metadata.create_all(bind=engine)   
+    Base.metadata.create_all(bind=engine)
 
     def clear_database(self):
         Base.metadata.drop_all(bind=self.engine)
-        Base.metadata.create_all(bind=self.engine)  
-    
+        Base.metadata.create_all(bind=self.engine)
+
     def register_user(self, message, selected_lang):
         Session = sessionmaker(autoflush=False, bind=self.engine)
         if self.find_user(message.from_user.id) is not None:
             return False
         with Session(autoflush=False, bind=self.engine) as db:
             new_user = User(
-                user_id = message.from_user.id,
-                username = message.from_user.username,
-                first_name = message.from_user.first_name,
-                last_name = message.from_user.last_name,
-                games_count = 0,
-                lose_count = 0,
-                wins_count = 0,
-                lang = selected_lang
+                user_id=message.from_user.id,
+                username=message.from_user.username,
+                first_name=message.from_user.first_name,
+                last_name=message.from_user.last_name,
+                games_count=0,
+                lose_count=0,
+                wins_count=0,
+                lang=selected_lang
             )
-            
+
             db.add(new_user)
             db.commit()
         return True
-    
+
     def find_user(self, user_id) -> object:
         Session = sessionmaker(autoflush=False, bind=self.engine)
         with Session(autoflush=False, bind=self.engine) as db:
@@ -81,7 +85,7 @@ class Database:
             db.close()
             if user is not None:
                 return user
-            
+
         return None
 
     def find_user_X(self, _id) -> object:
@@ -103,7 +107,6 @@ class Database:
                 return game_id.gamefield_id
         return None
 
-    
     def add_to_game(self, game_id, user_id) -> object:
         user = self.find_user(user_id)
         user.game_id = game_id
@@ -111,10 +114,9 @@ class Database:
             db.merge(user)
         return user
 
-
     def find_user_by_tag(self, user_tag) -> object:
         Session = sessionmaker(autoflush=False, bind=self.engine)
-        user_tag = user_tag[1:] # убираем @
+        user_tag = user_tag[1:]  # убираем @
 
         with Session(autoflush=False, bind=self.engine) as db:
             user = db.query(User).filter(User.username == user_tag).first()
@@ -125,9 +127,9 @@ class Database:
 
     def create_game(self, user_id_1, user_id_2) -> object:
         if self.find_user(user_id_1).game_id is not None or \
-            self.find_user(user_id_2).game_id is not None:
+                self.find_user(user_id_2).game_id is not None:
             return False
-        
+
         if user_id_1 == user_id_2:
             return False
 
@@ -138,9 +140,9 @@ class Database:
             db.commit()
 
             new_game = Game(
-                gamefield_id = new_gamefield.id,
-                first_player_id = user_id_1,
-                second_player_id = user_id_2
+                gamefield_id=new_gamefield.id,
+                first_player_id=user_id_1,
+                second_player_id=user_id_2
             )
 
             db.add(new_game)
@@ -168,7 +170,7 @@ class Database:
             if game is not None:
                 return game
         return None
-    
+
     def find_gamefield(self, gamefield_id) -> object:
         Session = sessionmaker(autoflush=False, bind=self.engine)
         with Session(autoflush=False, bind=self.engine) as db:
@@ -178,14 +180,14 @@ class Database:
                 return gamefield
         return None
 
-    def check_move_player_status(self ) -> object:
+    def check_move_player_status(self) -> object:
         Session = sessionmaker(autoflush=False, bind=self.engine)
         with Session(autoflush=False, bind=self.engine) as db:
-            player = db.query(Game).filter(Game.move_player ).first()
+            player = db.query(Game).filter(Game.move_player).first()
             db.close()
             if player.move_player is not None:
                 return player.move_player
-            
+
             return False
 
     def update_move_player_status(self, _move_player) -> object:
@@ -198,19 +200,18 @@ class Database:
                 return True
             return False
 
-    def update_gamefield(self, _id, player) -> object: #если 1 то крестик, если 2 то нолик
+    def update_gamefield(self, _id, player) -> object:  # если 1 то крестик, если 2 то нолик
         Session = sessionmaker(autoflush=False, bind=self.engine)
         with Session(autoflush=False, bind=self.engine) as db:
             match _id:
                 case '1':
                     game_field = db.query(Gamefield).filter(Gamefield.field1 == 0).first()
 
-                    if  game_field.field1 == 0:
+                    if game_field.field1 == 0:
                         db.field1 = player
                         db.commit()
-                        return 
+                        return
                     return False
-
 
     def edit_gamefield(self, gamefield_id, field_obj, value) -> object:
         field = self.find_gamefield(gamefield_id)
@@ -222,7 +223,6 @@ class Database:
 
         return field
 
-
     # def get_gamefield_id(self):
     #     Session = sessionmaker(autoflush=False, bind=self.engine)
     #     with Session(autoflush=False, bind=self.engine) as db:
@@ -230,7 +230,7 @@ class Database:
     #         return gamefield_id.
 
     # в теории работает
-    def finish_game(self, first_player, second_player, winner): 
+    def finish_game(self, first_player, second_player, winner):
         '''
           winner = 0 - draw
           winner = 1 - first_player win, 
@@ -241,13 +241,13 @@ class Database:
         with Session(autoflush=False, bind=self.engine) as db:
             user_one = self.find_user(first_player)
             user_two = self.find_user(second_player)
-            
+
             db.delete(user_one)
             db.delete(user_two)
-            
+
             user_one.game_id = None
             user_two.game_id = None
-            
+
             user_one.games_count = user_one.games_count + 1
             user_two.games_count = user_two.games_count + 1
 
@@ -268,5 +268,3 @@ class Database:
             db.add(user_two)
 
         return True
-
-            
