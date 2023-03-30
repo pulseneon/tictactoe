@@ -1,8 +1,9 @@
 # ! стоит добавить проверку всех действий не в игре ли пользователь и на выход из неё !
 
-from db import Database
-from keyboards import main_keyboard, choose_game_type, ready_keyaboard, gamefield
-from language.langs import Language
+from TicTacToe.db import Database
+from TicTacToe.keyboards import main_keyboard, choose_game_type, ready_keyaboard, gamefield, cancel_keyboard
+from TicTacToe.language.langs import Language
+from TicTacToe.log import Logging
 
 
 class Callback:
@@ -31,10 +32,12 @@ class Callback:
                 self._handle_choose_game_type()
             case 'ready':
                 self._ready_to_play()
+            case 'cancel_game':
+                self._cancel_game()
 
     def _handle_lang(self):
         # УБРАТЬ ПОТОМ
-        self.db.clear_database()
+        # self.db.clear_database()
         # 
         self.db.register_user(self.data, self.arg)
         self.bot.send_message(chat_id=self.data.from_user.id, text=self.get_str('successfully_registered', self.arg),
@@ -94,30 +97,36 @@ class Callback:
                                             reply_markup=None)
                 self.bot.register_next_step_handler(msg, self.play_register)
 
+    def _cancel_game(self):
+        this_user = self.db.find_user(self.data.from_user.id)
+
+        players_id = self.db.cancel_game(this_user.game_id)
+
+        for player_id in players_id:
+            self.bot.send_message(chat_id=player_id, text=f"Предложение игры отклонено",
+                                  reply_markup=main_keyboard())
+
     def _ready_to_play(self):
-
-        # secondPlayer = self.db.find_user(self.data.from_user.id)
-        # secPlayerID = secondPlayer.id
-        # secPlayerID -=1
-
-        # firstPlayer = self.db.find_user_by_id(secPlayerID)
-
         match self.arg:
             case 'true':
-                # self.db.create_game(551414071,468078249)
-                game = self.db.create_game(551414071, 468078249)
-
-                #    self.db.add_to_game(game.game_id,551414071)
-                #    self.db.add_to_game(game.game_id,468078249)
-
                 self.bot.send_message(chat_id=551414071, text=f"Вы крестик, ваш ход", reply_markup=gamefield())
 
                 self.bot.send_message(chat_id=468078249, text=f"Вы нолик, ожидайте пока игрок сделает ход",
                                       reply_markup=gamefield())
 
             case 'false':
-                self.bot.send_message(chat_id=self.data.from_user.id, text=f"Вы отклонили предложение",
-                                      reply_markup=main_keyboard())
+                try:
+                    this_user = self.db.find_user(self.data.from_user.id)
+                    Logging.info(f'Игрок {this_user.username} отказался от игры №{this_user.game_id}')
+                    players_id = self.db.cancel_game(this_user.game_id)
+
+                    Logging.info(f'Игра №{this_user.game_id} была отменена')
+
+                    for player_id in players_id:
+                        self.bot.send_message(chat_id=player_id, text=f"Предложение игры отклонено",
+                                              reply_markup=main_keyboard())
+                except Exception as ex:
+                    Logging.warning(f'Произошла ошибка: {str(ex)}')
 
     # !методы ниже нужно будет переорпеделить куда-то!
 
@@ -127,26 +136,6 @@ class Callback:
         # илья тут для работы, например поиска игрока ты пишешь например
         # дописать еще чтобы по ссылке можно было типо t.me/tgjdfg
 
-        """
-        finded_user = self.db.find_user_by_tag(message.text)
-        if finded_user is None:  # если он не найден
-            self.bot.send_message(chat_id=message.from_user.id, text=f"{message.text} Игрок не был найден.",
-                                  reply_markup=main_keyboard())
-            return
-
-        if finded_user.game_id is None:  # если он не играет
-            self.bot.send_message(chat_id=message.from_user.id,
-                                  text=f" Отправлено приглашение пользователю ( {message.text} ) ",
-                                  reply_markup=main_keyboard())
-            self.bot.send_message(chat_id=finded_user.user_id,
-                                  text=f" Вы были приглашены в игру (от " + str(message.from_user.username) + " )",
-                                  reply_markup=ready_keyaboard())
-
-            # firstPlayer = self.db.find_user(message.from_user.id)
-            # secondPlayer = self.db.find_user(finded_user.user_id)
-
-            return
-            """
         throw_user = self.db.find_user(message.from_user.id)  # игрок кинувший инвайт
         find_user = self.db.find_user_by_tag(message.text)  # находим игрока
 
@@ -158,10 +147,20 @@ class Callback:
         find_game_id = find_user.game_id
         throw_game_id = throw_user.game_id
 
-        if find_game_id is None and throw_game_id is None:
+        null_game = -1
+
+        if find_game_id == null_game and throw_game_id == null_game:
+            self.bot.send_message(chat_id=message.from_user.id, text=f"Приглашение отправлено. Ожидаем ответа.",
+                                  reply_markup=cancel_keyboard())
+            self.bot.send_message(chat_id=find_user.user_id,
+                                  text=f"{throw_user.username} пригласил вас сыграть вместе с ним.",
+                                  reply_markup=ready_keyaboard())
+
             game = self.db.create_game(find_user.user_id, throw_user.user_id)
 
-            this_game = self.db.find_game(game.id)
+            # print(type(game))
+            # print(game.gamefield_id)
+            # this_game = self.db.find_game(game.id)
 
         else:  # такого не должно быть
             self.bot.send_message(chat_id=message.from_user.id, text=f"Кто-то из вас уже в игре",

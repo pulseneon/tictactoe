@@ -37,13 +37,11 @@ class Language:
     def update_languages(self):
         path = r'./language/'
         for filename in os.listdir(path):
-            print(filename)
             if filename.endswith('.yaml'):
                 language_name = filename[:-5]
                 self.languages[language_name] = yaml.safe_load(
                     open(path + filename, encoding='utf8')
                 )
-        print(self.languages)
 
     def get_language(self):
         # import lang from db and return then
@@ -54,14 +52,14 @@ class Language:
     def get_languages(self) -> list:
         to_return = []
         for lang in self.languages:
-            if (self.languages[lang]['available']):
+            if self.languages[lang]['available']:
                 to_return.append(lang)
         return to_return
 
     def get_languages_names(self) -> list:
         to_return = []
         for lang in self.languages:
-            if (self.languages[lang]['available']):
+            if self.languages[lang]['available']:
                 to_return.append(self.languages[lang]['language'])
         return to_return
 

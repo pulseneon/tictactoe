@@ -2,7 +2,7 @@ import sys
 import telebot
 from handlers import Handlers
 from env import TOKEN
-import logging
+from TicTacToe.log import Logging
 
 try:
     bot = telebot.TeleBot(TOKEN)
@@ -12,8 +12,7 @@ except Exception as e:
 
 def main():
     add_handlers = Handlers(bot)
-    print('s')
-    logging.info("Bot start")
+    Logging.info("Script start")
     bot.polling(none_stop=True)
 
 if __name__ == "__main__":

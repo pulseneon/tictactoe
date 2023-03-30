@@ -112,6 +112,8 @@ class Database:
         user.game_id = game_id
         with sessionmaker(autoflush=False, bind=self.engine)() as db:
             db.merge(user)
+
+        db.close()
         return user
 
     def find_user_by_tag(self, user_tag) -> object:
@@ -125,9 +127,10 @@ class Database:
                 return user
         return None
 
-    def create_game(self, user_id_1, user_id_2) -> object:
-        if self.find_user(user_id_1).game_id is not None or \
-                self.find_user(user_id_2).game_id is not None:
+    def create_game(self, user_id_1, user_id_2) -> Game:
+        null_game_id = -1
+        if self.find_user(user_id_1).game_id != null_game_id or \
+                self.find_user(user_id_2).game_id != null_game_id:
             return False
 
         if user_id_1 == user_id_2:
@@ -140,27 +143,26 @@ class Database:
             db.commit()
 
             new_game = Game(
-                gamefield_id=new_gamefield.id,
-                first_player_id=user_id_1,
-                second_player_id=user_id_2
+                gamefield_id = new_gamefield.id,
+                first_player_id = user_id_1,
+                second_player_id = user_id_2
             )
 
             db.add(new_game)
+            db.commit()
+
+            print(new_game.id)
 
             # refresh users game_id
-            user_one = self.find_user(user_id_1)
-            user_two = self.find_user(user_id_2)
+            user_one = db.query(User).filter(User.user_id == user_id_1).first()
+            user_two = db.query(User).filter(User.user_id == user_id_2).first()
+
             user_one.game_id = new_game.id
             user_two.game_id = new_game.id
-            db.delete(user_one)
-            db.delete(user_two)
-            db.add(user_one)
-            db.add(user_two)
+            db.flush()
 
             db.commit()
-            db.close()
-
-        return new_game
+            return new_game
 
     def find_game(self, game_id) -> object:
         Session = sessionmaker(autoflush=False, bind=self.engine)
@@ -170,6 +172,27 @@ class Database:
             if game is not None:
                 return game
         return None
+
+    def cancel_game(self, game_id) -> []:
+        return_list = []
+
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        with Session(autoflush=False, bind=self.engine) as db:
+            game = db.query(Game).filter(Game.id == game_id).first()
+
+            user_one = db.query(User).filter(User.user_id == game.first_player_id).first()
+            user_two = db.query(User).filter(User.user_id == game.second_player_id).first()
+
+            return_list.append(user_one.user_id)
+            return_list.append(user_two.user_id)
+
+            user_one.game_id = -1
+            user_two.game_id = -1
+
+            db.commit()
+
+            return return_list
+
 
     def find_gamefield(self, gamefield_id) -> object:
         Session = sessionmaker(autoflush=False, bind=self.engine)
