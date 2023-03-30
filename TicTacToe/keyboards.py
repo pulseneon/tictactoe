@@ -49,6 +49,12 @@ def lang_keyboard():
 
     return markup
 
+def cancel_keyboard():
+    markup = InlineKeyboardMarkup()
+    markup.add(InlineKeyboardButton('Отмена', callback_data=f'cancel_game:true'))
+
+    return markup
+
 def ready_keyaboard():
     markup = InlineKeyboardMarkup()
     markup.add(InlineKeyboardButton('Готов', callback_data=f'ready:true')) 
