@@ -30,6 +30,7 @@ class Game(Base):
     second_player_id = Column(BigInteger, nullable=False) # изначально нолики
     move_player = Column(Boolean, nullable=False, default=True) 
     created_on = Column(DateTime(timezone=True), default=func.now())
+    # game_id = Column(Integer, primary_key=True, index=True)
 
 class Gamefield(Base):
     __tablename__ = "gamefield"
@@ -82,7 +83,35 @@ class Database:
                 return user
             
         return None
+
+    def find_user_X(self, _id) -> object:
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        with Session(autoflush=False, bind=self.engine) as db:
+            user_X = db.query(Game).filter(Game.first_player_id == _id).first()
+            db.close()
+            if user_X is not None:
+                return user_X.first_player_id
+
+        return None
+
+    def find_game_id_by_user(self, user_id) -> object:
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        with Session(autoflush=False, bind=self.engine) as db:
+            game_id = db.query(Game).filter(Game.first_player_id == user_id).first()
+            db.close()
+            if game_id is not None:
+                return game_id.gamefield_id
+        return None
+
     
+    def add_to_game(self, game_id, user_id) -> object:
+        user = self.find_user(user_id)
+        user.game_id = game_id
+        with sessionmaker(autoflush=False, bind=self.engine)() as db:
+            db.merge(user)
+        return user
+
+
     def find_user_by_tag(self, user_tag) -> object:
         Session = sessionmaker(autoflush=False, bind=self.engine)
         user_tag = user_tag[1:] # убираем @
@@ -148,6 +177,57 @@ class Database:
             if gamefield is not None:
                 return gamefield
         return None
+
+    def check_move_player_status(self ) -> object:
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        with Session(autoflush=False, bind=self.engine) as db:
+            player = db.query(Game).filter(Game.move_player ).first()
+            db.close()
+            if player.move_player is not None:
+                return player.move_player
+            
+            return False
+
+    def update_move_player_status(self, _move_player) -> object:
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        with Session(autoflush=False, bind=self.engine) as db:
+            game = db.query(Game).filter(Game.move_player == _move_player).first()
+            if game is not None:
+                game.move_player = not _move_player
+                db.commit()
+                return True
+            return False
+
+    def update_gamefield(self, _id, player) -> object: #если 1 то крестик, если 2 то нолик
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        with Session(autoflush=False, bind=self.engine) as db:
+            match _id:
+                case '1':
+                    game_field = db.query(Gamefield).filter(Gamefield.field1 == 0).first()
+
+                    if  game_field.field1 == 0:
+                        db.field1 = player
+                        db.commit()
+                        return 
+                    return False
+
+
+    def edit_gamefield(self, gamefield_id, field_obj, value) -> object:
+        field = self.find_gamefield(gamefield_id)
+        field.field_obj = value
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        with Session() as session:
+            session.merge(field)
+            session.commit()
+
+        return field
+
+
+    # def get_gamefield_id(self):
+    #     Session = sessionmaker(autoflush=False, bind=self.engine)
+    #     with Session(autoflush=False, bind=self.engine) as db:
+    #         gamefield_id = db.query(Gamefield).filter(Gamefield.id  ...).first()
+    #         return gamefield_id.
 
     # в теории работает
     def finish_game(self, first_player, second_player, winner): 

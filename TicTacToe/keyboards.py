@@ -51,8 +51,8 @@ def lang_keyboard():
 
 def ready_keyaboard():
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton('Готов', callback_data=f'main:play_with_bot')) 
-    markup.add(InlineKeyboardButton('Не готов', callback_data=f'main:stats'))
+    markup.add(InlineKeyboardButton('Готов', callback_data=f'ready:true')) 
+    markup.add(InlineKeyboardButton('Не готов', callback_data=f'ready:false'))
     
     return markup
 
