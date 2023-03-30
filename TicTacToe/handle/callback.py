@@ -158,10 +158,6 @@ class Callback:
 
             game = self.db.create_game(find_user.user_id, throw_user.user_id)
 
-            # print(type(game))
-            # print(game.gamefield_id)
-            # this_game = self.db.find_game(game.id)
-
         else:  # такого не должно быть
             self.bot.send_message(chat_id=message.from_user.id, text=f"Кто-то из вас уже в игре",
                                   reply_markup=main_keyboard())
