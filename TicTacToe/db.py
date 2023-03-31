@@ -163,7 +163,7 @@ class Database:
             db.commit()
             return new_game
 
-    def find_game(self, game_id) -> object:
+    def find_game(self, game_id) -> Game:
         Session = sessionmaker(autoflush=False, bind=self.engine)
         with Session(autoflush=False, bind=self.engine) as db:
             game = db.query(Game).filter(Game.id == game_id).first()

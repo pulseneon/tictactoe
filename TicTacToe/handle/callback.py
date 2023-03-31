@@ -57,11 +57,27 @@ class Callback:
                 pass
 
     def _handle_field(self):
+        # проверка на его ход
+        this_user = self.db.find_user(self.data.from_user.id)
+        game = self.db.find_game(this_user.game_id)
+
+        right_player_move = None
+
+        if game.first_player_id == this_user.user_id and game.move_player is True:
+            right_player_move = True
+        elif game.second_player_id == this_user.user_id and game.move_player is False:
+            right_player_move = True
+
+        if right_player_move is False:
+            self.bot.send_message(chat_id=this_user.user_id, text=f"Сейчас не ваш ход",
+                                  reply_markup=gamefield())
+            return
+
         match self.arg:
             case '1':
-                # user_X = self.db.find_user_X (self.data.from_user.id)
-                # check_for_movie = self.db.check_move_player_status(True)
-
+                self.bot.send_message(chat_id=this_user.user_id, text=f"Вы сделали ход на 1 клетку",
+                                      reply_markup=gamefield())
+                """
                 if (self.db.check_move_player_status() == True):
                     if (self.db.find_user_X(self.data.from_user.id)) == self.data.from_user.id:
                         self.bot.send_message(chat_id=self.data.from_user.id, text=f"Вы сделали ход")
@@ -87,6 +103,7 @@ class Callback:
                 else:
                     self.bot.send_message(chat_id=self.data.from_user.id, text=f"Сейчас не ваш ход",
                                           reply_markup=gamefield())
+                                          """
 
     def _handle_choose_game_type(self):
         match self.arg:
@@ -110,10 +127,13 @@ class Callback:
     def _ready_to_play(self):
         match self.arg:
             case 'true':
-                self.bot.send_message(chat_id=551414071, text=f"Вы крестик, ваш ход", reply_markup=gamefield())
+                this_user = self.db.find_user(self.data.from_user.id)
+                game = self.db.find_game(this_user.game_id)
 
-                self.bot.send_message(chat_id=468078249, text=f"Вы нолик, ожидайте пока игрок сделает ход",
-                                      reply_markup=gamefield())
+                self.bot.send_message(chat_id=game.first_player_id, text=f"Вы крестик, ваш ход", reply_markup=gamefield())
+
+                self.bot.send_message(chat_id=game.second_player_id, text=f"Вы нолик, ожидайте пока игрок сделает ход",
+                                      reply_markup=None)
 
             case 'false':
                 try:
