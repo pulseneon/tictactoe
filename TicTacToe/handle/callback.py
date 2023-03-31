@@ -8,6 +8,7 @@ from TicTacToe.log import Logging
 
 class Callback:
     def __init__(self, bot, call) -> None:
+        self.arg = None
         self.data = call
         self.bot = bot
         self.db = Database()
@@ -117,16 +118,16 @@ class Callback:
             case 'false':
                 try:
                     this_user = self.db.find_user(self.data.from_user.id)
-                    Logging.info(f'Игрок {this_user.username} отказался от игры №{this_user.game_id}')
+                    Logging().info(f'Игрок {this_user.username} отказался от игры №{this_user.game_id}')
                     players_id = self.db.cancel_game(this_user.game_id)
 
-                    Logging.info(f'Игра №{this_user.game_id} была отменена')
+                    Logging().info(f'Игра №{this_user.game_id} была отменена')
 
                     for player_id in players_id:
                         self.bot.send_message(chat_id=player_id, text=f"Предложение игры отклонено",
                                               reply_markup=main_keyboard())
                 except Exception as ex:
-                    Logging.warning(f'Произошла ошибка: {str(ex)}')
+                    Logging().warning(f'Произошла ошибка: {str(ex)}')
 
     # !методы ниже нужно будет переорпеделить куда-то!
 

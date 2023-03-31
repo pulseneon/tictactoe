@@ -32,7 +32,6 @@ class Game(Base):
     second_player_id = Column(BigInteger, nullable=False)  # изначально нолики
     move_player = Column(Boolean, nullable=False, default=True)
     created_on = Column(DateTime(timezone=True), default=func.now())
-    # game_id = Column(Integer, primary_key=True, index=True)
 
 
 class Gamefield(Base):
