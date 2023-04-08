@@ -77,7 +77,7 @@ class Database:
             db.commit()
         return True
 
-    def find_user(self, user_id) -> object:
+    def find_user(self, user_id) -> User:
         Session = sessionmaker(autoflush=False, bind=self.engine)
         with Session(autoflush=False, bind=self.engine) as db:
             user = db.query(User).filter(User.user_id == user_id).first()
@@ -97,7 +97,7 @@ class Database:
 
         return None
 
-    def find_game_id_by_user(self, user_id) -> object:
+    def find_game_id_by_user(self, user_id) -> Game:
         Session = sessionmaker(autoflush=False, bind=self.engine)
         with Session(autoflush=False, bind=self.engine) as db:
             game_id = db.query(Game).filter(Game.first_player_id == user_id).first()
@@ -244,6 +244,40 @@ class Database:
             session.commit()
 
         return field
+
+    def get_users(self):
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        with Session() as session:
+            return session.query(User).all()
+
+    def delete_user(self, user_id: int):
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        with Session() as session:
+            user = session.query(User).filter(User.user_id == user_id).first()
+            if user:
+                session.delete(user)
+                session.commit()
+                return True
+            return False
+
+    def calc_game_result(self, user_id: int):
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        with Session() as session:
+            lose_user = session.query(User).filter(User.user_id == user_id).first()
+            game = self.find_game(lose_user.game_id)
+
+            if game.first_player_id == user_id:
+                win_user = session.query(User).filter(User.user_id == game.second_player_id).first()
+            else:
+                win_user = session.query(User).filter(User.user_id == game.first_player_id).first()
+
+
+            lose_user.lose_count = lose_user.lose_count + 1
+            lose_user.rating = lose_user.rating - 5
+            win_user.wins_count = win_user.wins_count + 1
+            win_user.rating = win_user.rating + 5
+
+            session.commit()
 
     # def get_gamefield_id(self):
     #     Session = sessionmaker(autoflush=False, bind=self.engine)

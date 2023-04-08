@@ -1,3 +1,4 @@
+from TicTacToe.db import Database
 from TicTacToe.language.langs import Language
 from TicTacToe.keyboards import lang_keyboard, main_keyboard
 
@@ -10,6 +11,7 @@ class Commands:
     def __init__(self, bot) -> None:
         self.bot = bot
         self.langs = Language()
+        self.db = Database()
 
     # /start
     def start(self, message):
@@ -21,3 +23,17 @@ class Commands:
     def menu(self, message):
         text = 'Было открыто главное меню'
         msg = self.bot.send_message(message.chat.id, text, parse_mode='markdown', reply_markup=main_keyboard())
+
+    def exit(self, message):
+        try:
+            this_user = self.db.find_user(message.from_user.id)
+            self.db.calc_game_result(this_user.user_id)
+
+            players_id = self.db.cancel_game(this_user.game_id)
+            for player_id in players_id:
+                self.bot.send_message(chat_id=player_id, text=f"Вы завершили игру",
+                                      reply_markup=main_keyboard())
+        except Exception as ex:
+            self.bot.send_message(chat_id=this_user.user_id, text=f"Произошла непредвиденная ошибка.",
+                                  reply_markup=main_keyboard())
+            print(f'Произошла ошибка: {str(ex)}')

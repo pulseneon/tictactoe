@@ -27,7 +27,7 @@ class Language:
         except KeyError:
             return self.get_default_string(string)
 
-    def get_default_string(self, string: str) -> str:
+    def get_default_string(self, string: str):
         en_string = self.languages['en'].get(string)
         if en_string is None:
             return StringNotFound(f'Error: string "{string}" not found.')

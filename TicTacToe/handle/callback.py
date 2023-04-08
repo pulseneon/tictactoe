@@ -138,6 +138,7 @@ class Callback:
             case 'false':
                 try:
                     this_user = self.db.find_user(self.data.from_user.id)
+                    self.db.calc_game_result(this_user.user_id)
                     Logging().info(f'Игрок {this_user.username} отказался от игры №{this_user.game_id}')
                     players_id = self.db.cancel_game(this_user.game_id)
 
@@ -180,7 +181,7 @@ class Callback:
             game = self.db.create_game(find_user.user_id, throw_user.user_id)
 
         else:  # такого не должно быть
-            self.bot.send_message(chat_id=message.from_user.id, text=f"Кто-то из вас уже в игре",
+            self.bot.send_message(chat_id=message.from_user.id, text=f"Кто-то из вас уже в игре\n(для выхода из неё напишите `/exit`)", parse_mode='markdown',
                                   reply_markup=main_keyboard())
             return
 
