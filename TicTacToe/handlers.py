@@ -15,7 +15,7 @@ class Handlers:
         # user handlers list
         bot.message_handler(commands=['start'])(self.commands.start)
         bot.message_handler(commands=['menu'])(self.commands.menu)
-        bot.message_handler(commands=['exit'])(self.commands.exit)
+        bot.message_handler(commands=['cancel_game'])(self.commands.cancel_game())
 
         # admin handlers list
         bot.message_handler(commands=['help'])(self.acommands.help)

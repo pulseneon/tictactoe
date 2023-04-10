@@ -2,6 +2,8 @@ from db import Database
 from env import ADMINS
 from keyboards import main_keyboard
 
+from TicTacToe.log import Logging
+
 
 # проверка на админа
 def is_admin(id):
@@ -20,7 +22,7 @@ class ACommands:
     def help(self, message):
         user_id = message.from_user.id
         if not is_admin(user_id):
-            # лог что не админ команду ввел
+            Logging.info(f'Игрок {message.from_user.username} ({user_id}) запросил админ-команду /help')
             self.bot.send_message(message.chat.id, f'Воспользуйтесь клавиатурой ниже для работы',
                                   reply_markup=main_keyboard())
             return
@@ -35,18 +37,21 @@ class ACommands:
 `/help` - помощь
 '''
 
+        Logging.info(f'Админ {message.from_user.username} запросил админ-команду /help')
         self.bot.send_message(user_id, text, parse_mode='markdown', reply_markup=None)
 
     # пересоздать бд
     def recreate_db(self, message):
         user_id = message.from_user.id
         if not is_admin(user_id):
-            # лог что не админ команду ввел
+            Logging.info(f'Игрок {message.from_user.username} ({user_id}) запросил админ-команду /recreate_db')
             self.bot.send_message(message.chat.id, f'Воспользуйтесь клавиатурой ниже для работы',
                                   reply_markup=main_keyboard())
             return
 
+        Logging.info(f'Админ {message.from_user.username} запросил админ-команду /recreate_db')
         self.db.clear_database()
+        Logging.fatal(f'Админ {message.from_user.username} очистил базу данных')
         self.bot.send_message(message.chat.id, f'База данных была очищена', parse_mode='markdown',
                               reply_markup=None)
 
@@ -54,7 +59,7 @@ class ACommands:
     def find_user(self, message):
         user_id = message.from_user.id
         if not is_admin(user_id):
-            # лог что не админ команду ввел
+            Logging.info(f'Игрок {message.from_user.username} ({user_id}) запросил админ-команду /find_user')
             self.bot.send_message(message.chat.id, f'Воспользуйтесь клавиатурой ниже для работы',
                                   reply_markup=main_keyboard())
             return
@@ -62,6 +67,8 @@ class ACommands:
         message_args = message.text.split()
         find_user_id = message_args[1]
         find_user = self.db.find_user(find_user_id)
+
+        Logging.info(f'Админ {message.from_user.username} запросил админ-команду /find_user')
 
         if find_user is None:
             self.bot.send_message(message.chat.id, f'Такого игрока нет в базе данных',
@@ -86,10 +93,12 @@ class ACommands:
     def delete_user(self, message):
         user_id = message.from_user.id
         if not is_admin(user_id):
-            # лог что не админ команду ввел
+            Logging.info(f'Игрок {message.from_user.username} ({user_id}) запросил админ-команду /delete_user')
             self.bot.send_message(user_id, f'Воспользуйтесь клавиатурой ниже для работы',
                                   reply_markup=main_keyboard())
             return
+
+        Logging.info(f'Админ {message.from_user.username} запросил админ-команду /delete_user')
 
         message_args = message.text.split()
         if len(message_args) < 2:
@@ -113,11 +122,12 @@ class ACommands:
     def delete_game(self, message):
         user_id = message.from_user.id
         if not is_admin(user_id):
-            # лог что не админ команду ввел
+            Logging.info(f'Игрок {message.from_user.username} ({user_id}) запросил админ-команду /delete_game')
             self.bot.send_message(user_id, f'Воспользуйтесь клавиатурой ниже для работы',
                                   reply_markup=main_keyboard())
             return
 
+        Logging.info(f'Админ {message.from_user.username} запросил админ-команду /delete_game')
         message_args = message.text.split()
         if len(message_args) < 2:
             self.bot.send_message(user_id, f'Ошибка: недостаточно аргументов для удаления игры',
@@ -138,6 +148,7 @@ class ACommands:
             return
 
         self.db.cancel_game(find_user.game_id)
+        Logging.info(f'Админ {message.from_user.username} удалил игру №{find_user.game_id}')
         self.bot.send_message(user_id, f'Игра была прекращена',
                               reply_markup=None)
 
@@ -146,7 +157,7 @@ class ACommands:
     def send_msg(self, message):
         user_id = message.from_user.id
         if not is_admin(user_id):
-            # лог что не админ команду ввел
+            Logging.info(f'Игрок {message.from_user.username} ({user_id}) запросил админ-команду /send_msg')
             self.bot.send_message(message.chat.id, f'Воспользуйтесь клавиатурой ниже для работы',
                                   reply_markup=main_keyboard())
             return
@@ -167,13 +178,14 @@ class ACommands:
 
         text = ' '.join(message_args[2:])
         self.bot.send_message(message_args[1], f'{text}')
+        Logging.info(f'Админ {message.from_user.username} написал в лс игроку {find_user.username}: {text}')
         self.bot.send_message(user_id, f'Сообщение доставлено {find_user.username}. Текст сообщения: {text}')
 
     # рассылка всем
     def ad(self, message):
         user_id = message.from_user.id
         if not is_admin(user_id):
-            # лог что не админ команду ввел
+            Logging.info(f'Игрок {message.from_user.username} ({user_id}) запросил админ-команду /ad')
             self.bot.send_message(message.chat.id, f'Воспользуйтесь клавиатурой ниже для работы',
                                   reply_markup=main_keyboard())
             return
@@ -189,8 +201,24 @@ class ACommands:
         text = ' '.join(message_args[1:])
         idx = 0
 
-        for user in users:
-            self.bot.send_message(user.user_id, f'{text}')
-            idx = idx + 1
+        try:
+            for user in users:
+                self.bot.send_message(user.user_id, f'{text}')
+                idx = idx + 1
+        except Exception as ex:
+            Logging.info(f'Ошибка при рассылке: {str(ex)}')
 
+        Logging.info(f'Админ {message.from_user.username} разослал рекламу {idx} пользователям: {text}')
         self.bot.send_message(user_id, f'Сообщение доставлено {idx} пользователям. Текст сообщения: {text}')
+
+    def users_count(self, message):
+        user_id = message.from_user.id
+        if not is_admin(user_id):
+            Logging.info(f'Игрок {message.from_user.username} ({user_id}) запросил админ-команду /users_count')
+            self.bot.send_message(message.chat.id, f'Воспользуйтесь клавиатурой ниже для работы',
+                                  reply_markup=main_keyboard())
+            return
+
+        users = self.db.get_users()
+        Logging.info(f'Админ {message.from_user.username} получил количество пользователей бота: {len(users)}')
+        self.bot.send_message(user_id, f'Игроков бота в базе данных: {len(users)}')

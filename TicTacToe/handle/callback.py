@@ -37,10 +37,8 @@ class Callback:
                 self._cancel_game()
 
     def _handle_lang(self):
-        # УБРАТЬ ПОТОМ
-        # self.db.clear_database()
-        # 
         self.db.register_user(self.data, self.arg)
+        Logging.info(f'Зарегистрирован пользователь с id: {self.data.from_user.id}')
         self.bot.send_message(chat_id=self.data.from_user.id, text=self.get_str('successfully_registered', self.arg),
                               reply_markup=main_keyboard())
 
@@ -57,8 +55,8 @@ class Callback:
                 pass
 
     def _handle_field(self):
-        # проверка на его ход
         this_user = self.db.find_user(self.data.from_user.id)
+        Logging.info(f'Игрок {this_user.username} делает ход в игре №{this_user.game_id}')
         game = self.db.find_game(this_user.game_id)
 
         if this_user.user_id == game.first_player_id and game.move_player is False:
@@ -103,7 +101,8 @@ class Callback:
                 self.bot.send_message(chat_id=this_user.user_id, text=f"Крестик победил!", reply_markup=None)
                 self.bot.send_message(chat_id=game.second_player_id, text=f"Крестик победил!", reply_markup=None)
 
-                self.db.finish_game(game.first_player_id,game.second_player_id,1)
+                self.db.finish_game(game.first_player_id,game.second_player_id, 1)
+                Logging.info(f'Игра №{game.id} завершилась')
                 return
 
             self.bot.send_message(chat_id=game.second_player_id, text=f"Крестик походил, ваша очередь", reply_markup=gamefield())
@@ -119,6 +118,7 @@ class Callback:
                 self.bot.send_message(chat_id=game.second_player_id, text=f"Ничья", reply_markup=None)
 
                 self.db.finish_game(game.first_player_id,game.second_player_id,0)
+                Logging.info(f'Игра №{game.id} завершилась')
                 return
 
             # проверка на победу
@@ -127,6 +127,7 @@ class Callback:
                 self.bot.send_message(chat_id=game.first_player_id, text=f"Нолик победил!", reply_markup=None)
 
                 self.db.finish_game(game.first_player_id,game.second_player_id,2)
+                Logging.info(f'Игра №{game.id} завершилась')
                 return
 
             self.bot.send_message(chat_id=game.first_player_id, text=f"Нолик походил, ваша очередь", reply_markup=gamefield())
@@ -157,6 +158,8 @@ class Callback:
                 this_user = self.db.find_user(self.data.from_user.id)
                 game = self.db.find_game(this_user.game_id)
 
+                Logging.info(f'Игра №{game.id} началась')
+
                 self.bot.send_message(chat_id=game.first_player_id, text=f"Вы крестик, ваш ход", reply_markup=gamefield())
 
                 self.bot.send_message(chat_id=game.second_player_id, text=f"Вы нолик, ожидайте пока игрок сделает ход",
@@ -177,12 +180,8 @@ class Callback:
                 except Exception as ex:
                     Logging().warning(f'Произошла ошибка: {str(ex)}')
 
-    # !методы ниже нужно будет переорпеделить куда-то!
-
     # регистрация игры
     def play_register(self, message, finded_user=None):
-
-        # илья тут для работы, например поиска игрока ты пишешь например
         # дописать еще чтобы по ссылке можно было типо t.me/tgjdfg
 
         throw_user = self.db.find_user(message.from_user.id)  # игрок кинувший инвайт
@@ -208,39 +207,6 @@ class Callback:
             game = self.db.create_game(find_user.user_id, throw_user.user_id)
 
         else:  # такого не должно быть
-            self.bot.send_message(chat_id=message.from_user.id, text=f"Кто-то из вас уже в игре\n(для выхода из неё напишите `/exit`)", parse_mode='markdown',
+            self.bot.send_message(chat_id=message.from_user.id, text=f"Кто-то из вас уже в игре\n(для выхода из неё напишите `/cancel_game`)", parse_mode='markdown',
                                   reply_markup=main_keyboard())
             return
-
-        # self.bot.send_message(chat_id=message.from_user.id, text=f"{message.text} Отправлено приглашение пользователю "+message.text, reply_markup=main_keyboard())
-
-        # если не вернул ретенр значит он найден
-        # проверяем играет ли он через finded.user.game_id если он тоже None то не играет иначе выводим ошибку пусть доиграет
-
-        # если не играет то отправляем сообщения об успешной отправке предложения поиграть 
-        # и finded.user.user_id тоже отправляем предложение поиграть и ждем их ответы
-        # создаем игру и закидываем туда начавшего игру и при нажатии буду играть на клавиатуре ready_keyboard() приглашенным
-        # скинуть им двоим приглос на игру и хукать уже непосредственно клавиатуру 3х3 и просчитывать поочередно ходы
-
-        '''
-        playerX = message.from_user.id
-    #     playerO = message.text.split(' ')[1]
-    
-    #     first_player = db.find_user(playerX)
-    #     if first_player.game_id is not None:
-    #         self.bot.send_message(chat_id=playerX, text="Извините вы в игре")
-    #         return
-
-    #     second_player = db.find_user(playerO)
-    #     if second_player is None:
-    #         self.bot.send_message(chat_id=playerX, text="Игрок не найден в базе данных")
-    #         return
-
-    #     if second_player.game_id is not None:
-    #         self.bot.send_message(chat_id=playerX, text="Извините он играет")
-    #         return
-        
-    #     game = db.create_game(playerX, playerO)
-    #     self.bot.send_message(chat_id=playerX, text="Ты крестик", reply_markup = gamefield())
-    #     self.bot.send_message(chat_id=playerO, text="Ты нолик", reply_markup = gamefield())
-        '''

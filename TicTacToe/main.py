@@ -7,13 +7,15 @@ from log import Logging
 try:
     bot = telebot.TeleBot(TOKEN)
 except Exception as e:
-    # write log
+    Logging.fatal(f"Не удалось запустить бота. Ошибка: {str(e)}")
+    Logging.fatal('Выключаем приложение')
     sys.exit(1)
 
 
 def main():
     Handlers(bot)
-    Logging().info("Script start")
+    Logging.init_path()
+    Logging.info("Скрипт запущен")
     bot.polling(none_stop=True)
 
 
