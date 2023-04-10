@@ -71,7 +71,7 @@ class Callback:
 
         # проверка на занятость клетки
         gamefield_id_from_user = this_user.game_id
-        if self.db.get_gamefield(gamefield_id_from_user, self.arg) is not 0:
+        if self.db.get_gamefield(gamefield_id_from_user, self.arg) != 0:
             # клетка уже занята
             self.bot.send_message(chat_id=this_user.user_id, text=f"Эта клетка уже занята, выберите другую", reply_markup=gamefield())
             return
@@ -182,15 +182,16 @@ class Callback:
 
     # регистрация игры
     def play_register(self, message, finded_user=None):
-        # дописать еще чтобы по ссылке можно было типо t.me/tgjdfg
-
         throw_user = self.db.find_user(message.from_user.id)  # игрок кинувший инвайт
         find_user = self.db.find_user_by_tag(message.text)  # находим игрока
 
         if find_user is None:  # если он не найден
-            self.bot.send_message(chat_id=message.from_user.id, text=f"{message.text} игрок не был найден.",
-                                  reply_markup=main_keyboard())
-            return
+            # поиск игрока по ссылке
+            find_user = self.db.find_user_by_url(message.text)
+            if find_user is None:
+                self.bot.send_message(chat_id=message.from_user.id, text=f"{message.text} игрок не был найден.",
+                                    reply_markup=main_keyboard())
+                return
 
         find_game_id = find_user.game_id
         throw_game_id = throw_user.game_id

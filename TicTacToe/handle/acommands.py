@@ -35,6 +35,7 @@ class ACommands:
 `/ad {text}` - рассылка игрокам
 `/recreate_db` - пересоздать базу данных
 `/help` - помощь
+`/users_count` - количество пользователей
 '''
 
         Logging.info(f'Админ {message.from_user.username} запросил админ-команду /help')

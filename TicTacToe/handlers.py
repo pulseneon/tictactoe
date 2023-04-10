@@ -1,5 +1,5 @@
 from db import Database
-from keyboards import lang_keyboard, gamefield, main_keyboard
+from keyboards import main_keyboard
 from handle.commands import Commands
 from handle.acommands import ACommands
 from handle.callback import Callback
@@ -15,7 +15,7 @@ class Handlers:
         # user handlers list
         bot.message_handler(commands=['start'])(self.commands.start)
         bot.message_handler(commands=['menu'])(self.commands.menu)
-        bot.message_handler(commands=['cancel_game'])(self.commands.cancel_game())
+        bot.message_handler(commands=['cancel_game'])(self.commands.cancel_game)
 
         # admin handlers list
         bot.message_handler(commands=['help'])(self.acommands.help)
@@ -25,6 +25,7 @@ class Handlers:
         bot.message_handler(commands=['delete_game'])(self.acommands.delete_game)
         bot.message_handler(commands=['delete_user'])(self.acommands.delete_user)
         bot.message_handler(commands=['recreate_db'])(self.acommands.recreate_db)
+        bot.message_handler(commands=['users_count'])(self.acommands.users_count)
 
         @bot.callback_query_handler(func=lambda call: True)
         def callback(call):

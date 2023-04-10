@@ -4,6 +4,8 @@ from handlers import Handlers
 from env import TOKEN
 from log import Logging
 
+Logging.init_path()
+
 try:
     bot = telebot.TeleBot(TOKEN)
 except Exception as e:
@@ -13,10 +15,13 @@ except Exception as e:
 
 
 def main():
-    Handlers(bot)
-    Logging.init_path()
     Logging.info("Скрипт запущен")
-    bot.polling(none_stop=True)
+    Handlers(bot)
+    while True:
+        try:
+            bot.polling(none_stop=True)
+        except Exception as ex:
+            Logging.fatal(f"Критическая ошибка: {str(ex)}")
 
 
 if __name__ == "__main__":

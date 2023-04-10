@@ -1,4 +1,5 @@
 import datetime
+import os
 
 BOLD = '\33[1m'
 ERROR = '\033[91m'
@@ -27,16 +28,24 @@ def generate_path():
 
 
 class Logging:
-    log_file_path = None
-
     @staticmethod
     def init_path():
-        Logging.log_file_path = generate_path()
-        print(Logging.log_file_path)
+        log_file_path = generate_path()
+        with open(file=log_file_path, mode='w', encoding='utf-8') as f:
+            pass
+
+    @staticmethod
+    def get_path():
+        dir_path = "./logs/"
+        files = os.listdir(dir_path)
+        if files:
+            files.sort(key=lambda x: os.path.getctime(os.path.join(dir_path, x)))
+            latest_file = os.path.join(dir_path, files[-1])
+            return(latest_file)
 
     @staticmethod
     def add_log(color, tag, message):
-        with open(file=Logging.log_file_path, mode='w', encoding='utf-8') as f:
+        with open(file=Logging.get_path(), mode='w', encoding='utf-8') as f:
             f.seek(0)
             f.write(f'{format_time_log()} [{tag}] {message}')
         print(f'{BOLD}{color}{format_time_log()}[{tag}] {RESET}{message}')

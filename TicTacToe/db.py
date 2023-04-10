@@ -1,8 +1,11 @@
 import datetime
+import logging
 import os
 from dotenv import load_dotenv
 from sqlalchemy import BigInteger, Boolean, Column, DateTime, Integer, String, create_engine, ForeignKey, func
 from sqlalchemy.orm import DeclarativeBase, relationship, sessionmaker
+
+from TicTacToe.log import Logging
 from env import DB_USER, DB_NAME, DB_HOST, DB_PASS
 
 
@@ -115,7 +118,7 @@ class Database:
         db.close()
         return user
 
-    def find_user_by_tag(self, user_tag) -> object:
+    def find_user_by_tag(self, user_tag) -> User:
         Session = sessionmaker(autoflush=False, bind=self.engine)
         user_tag = user_tag[1:]  # убираем @
 
@@ -125,6 +128,22 @@ class Database:
             if user is not None:
                 return user
         return None
+
+    def find_user_by_url(self, url) -> User:
+        username = url.split('/')
+
+        if len(username) < 3:
+            return None
+
+        Logging.debug(username)
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        with Session(autoflush=False, bind=self.engine) as db:
+            user = db.query(User).filter(User.username == username[3]).first()
+            db.close()
+            if user is not None:
+                return user
+        return None
+
 
     def create_game(self, user_id_1, user_id_2) -> Game:
         null_game_id = -1
@@ -414,12 +433,6 @@ class Database:
 
             session.commit()
 
-    # def get_gamefield_id(self):
-    #     Session = sessionmaker(autoflush=False, bind=self.engine)
-    #     with Session(autoflush=False, bind=self.engine) as db:
-    #         gamefield_id = db.query(Gamefield).filter(Gamefield.id  ...).first()
-    #         return gamefield_id.
-
     # в теории работает
     def finish_game(self, first_player, second_player, winner):
         '''
@@ -436,8 +449,8 @@ class Database:
             db.delete(user_one)
             db.delete(user_two)
 
-            user_one.game_id = None
-            user_two.game_id = None
+            user_one.game_id = -1
+            user_two.game_id = -1
 
             user_one.games_count = user_one.games_count + 1
             user_two.games_count = user_two.games_count + 1
