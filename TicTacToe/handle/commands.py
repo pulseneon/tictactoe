@@ -1,6 +1,6 @@
-from TicTacToe.db import Database
-from TicTacToe.language.langs import Language
-from TicTacToe.keyboards import lang_keyboard, main_keyboard
+from db import Database
+from language.langs import Language
+from keyboards import lang_keyboard, main_keyboard
 
 # хз откуда она но она есть
 # def get_string(string: str) -> str:

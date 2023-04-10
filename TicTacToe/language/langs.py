@@ -1,6 +1,6 @@
 import os
 import yaml
-from TicTacToe.db import Database
+from db import Database
 
 class Language:
     def __init__(self) -> None:
@@ -35,7 +35,7 @@ class Language:
 
     # reload available langs
     def update_languages(self):
-        path = r'./language/'
+        path = r'./TicTacToe/language/'
         for filename in os.listdir(path):
             if filename.endswith('.yaml'):
                 language_name = filename[:-5]

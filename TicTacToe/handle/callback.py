@@ -1,9 +1,9 @@
 # ! стоит добавить проверку всех действий не в игре ли пользователь и на выход из неё !
 
-from TicTacToe.db import Database
-from TicTacToe.keyboards import main_keyboard, choose_game_type, ready_keyaboard, gamefield, cancel_keyboard
-from TicTacToe.language.langs import Language
-from TicTacToe.log import Logging
+from db import Database
+from keyboards import main_keyboard, choose_game_type, ready_keyaboard, gamefield, cancel_keyboard
+from language.langs import Language
+from log import Logging
 
 
 class Callback:
@@ -61,49 +61,76 @@ class Callback:
         this_user = self.db.find_user(self.data.from_user.id)
         game = self.db.find_game(this_user.game_id)
 
-        right_player_move = None
-
-        if game.first_player_id == this_user.user_id and game.move_player is True:
-            right_player_move = True
-        elif game.second_player_id == this_user.user_id and game.move_player is False:
-            right_player_move = True
-
-        if right_player_move is False:
-            self.bot.send_message(chat_id=this_user.user_id, text=f"Сейчас не ваш ход",
-                                  reply_markup=gamefield())
+        if this_user.user_id == game.first_player_id and game.move_player is False:
+            # не ход первого игрока
+            self.bot.send_message(chat_id=this_user.user_id, text=f"Сейчас не ваш ход", reply_markup=gamefield())
             return
 
-        match self.arg:
-            case '1':
-                self.bot.send_message(chat_id=this_user.user_id, text=f"Вы сделали ход на 1 клетку",
-                                      reply_markup=gamefield())
-                """
-                if (self.db.check_move_player_status() == True):
-                    if (self.db.find_user_X(self.data.from_user.id)) == self.data.from_user.id:
-                        self.bot.send_message(chat_id=self.data.from_user.id, text=f"Вы сделали ход")
+        elif this_user.user_id == game.second_player_id and game.move_player is True:
+            # не ход второго игрока
+            self.bot.send_message(chat_id=this_user.user_id, text=f"Сейчас не ваш ход", reply_markup=gamefield())
+            return
 
-                        # finded_user = self.db.find_user_by_tag(message.text)
+        # проверка на занятость клетки
+        gamefield_id_from_user = this_user.game_id
+        if self.db.get_gamefield(gamefield_id_from_user, self.arg) is not 0:
+            # клетка уже занята
+            self.bot.send_message(chat_id=this_user.user_id, text=f"Эта клетка уже занята, выберите другую", reply_markup=gamefield())
+            return
 
-                        user_id = self.db.find_user_X(self.data.from_user.id)
+        # обработка хода
+        gamefield_id_from_user = this_user.game_id
+        gamefield_value = 1 if this_user.user_id == game.first_player_id else 2  # 1 - крестик, 2 - нолик
+        self.db.edit_gamefield(gamefield_id_from_user, self.arg, gamefield_value)  
 
-                        finded_user = self.db.find_user(user_id)
+        self.db.update_move_player_status(game)
 
-                        # game_id = finded_user.game_id
+         # отправка сообщений об успешном ходе и переходе права хода к другому игроку
+        if gamefield_value == 1:
+            # ход крестика
+            self.bot.send_message(chat_id=this_user.user_id, text=f"Вы сделали ход на {self.arg} клетку", reply_markup=None)
+            
+            # проверка на ничью
+            if self.db.check_draw(gamefield_id_from_user) == True:
+                self.bot.send_message(chat_id=this_user.user_id, text=f"Ничья", reply_markup=None)
+                self.bot.send_message(chat_id=game.second_player_id, text=f"Ничья", reply_markup=None)
 
-                        test1 = self.db.find_game_id_by_user(finded_user.user_id)
+                self.db.finish_game(game.first_player_id,game.second_player_id,0)
+                return
 
-                        # test2 = self.db.find_game(test1)
+            # проверка на победу
+            if self.db.check_win(gamefield_id_from_user,1) == True:
+                self.bot.send_message(chat_id=this_user.user_id, text=f"Крестик победил!", reply_markup=None)
+                self.bot.send_message(chat_id=game.second_player_id, text=f"Крестик победил!", reply_markup=None)
 
-                        # self.db.update_field_value(test1,self.arg)
-                        self.db.edit_gamefield(test1, self.arg, 1)
-                        # if(self.db.find_gamefield(self.arg)):
-                        #     self.bot.send_message(chat_id=self.data.from_user.id, text=f"Эта клетка занята" ,reply_markup=gamefield())
+                self.db.finish_game(game.first_player_id,game.second_player_id,1)
+                return
 
+            self.bot.send_message(chat_id=game.second_player_id, text=f"Крестик походил, ваша очередь", reply_markup=gamefield())
+            
+            
+        else:
+            # ход нолика
+            self.bot.send_message(chat_id=this_user.user_id, text=f"Вы сделали ход на {self.arg} клетку", reply_markup=None)
+            
+            # проверка на ничью
+            if self.db.check_draw(gamefield_id_from_user) == True:
+                self.bot.send_message(chat_id=this_user.user_id, text=f"Ничья", reply_markup=None)
+                self.bot.send_message(chat_id=game.second_player_id, text=f"Ничья", reply_markup=None)
 
-                else:
-                    self.bot.send_message(chat_id=self.data.from_user.id, text=f"Сейчас не ваш ход",
-                                          reply_markup=gamefield())
-                                          """
+                self.db.finish_game(game.first_player_id,game.second_player_id,0)
+                return
+
+            # проверка на победу
+            if self.db.check_win(gamefield_id_from_user,2) == True:
+                self.bot.send_message(chat_id=this_user.user_id, text=f"Нолик победил!", reply_markup=None)
+                self.bot.send_message(chat_id=game.first_player_id, text=f"Нолик победил!", reply_markup=None)
+
+                self.db.finish_game(game.first_player_id,game.second_player_id,2)
+                return
+
+            self.bot.send_message(chat_id=game.first_player_id, text=f"Нолик походил, ваша очередь", reply_markup=gamefield())
+                        
 
     def _handle_choose_game_type(self):
         match self.arg:

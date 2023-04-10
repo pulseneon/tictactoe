@@ -13,7 +13,7 @@ def format_time():
 
 
 def generate_path():
-    return f'logs/log {format_time()}.txt'
+    return f'./TicTacToe/logs/log {format_time()}.txt'
 
 
 class Logging:

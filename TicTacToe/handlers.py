@@ -1,4 +1,4 @@
-from TicTacToe.db import Database
+from db import Database
 from keyboards import lang_keyboard, gamefield, main_keyboard
 from handle.commands import Commands
 from handle.acommands import ACommands

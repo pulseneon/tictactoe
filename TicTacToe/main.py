@@ -2,7 +2,7 @@ import sys
 import telebot
 from handlers import Handlers
 from env import TOKEN
-from TicTacToe.log import Logging
+from log import Logging
 
 try:
     bot = telebot.TeleBot(TOKEN)

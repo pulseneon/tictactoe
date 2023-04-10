@@ -1,6 +1,6 @@
-from TicTacToe.db import Database
-from TicTacToe.env import ADMINS
-from TicTacToe.keyboards import main_keyboard
+from db import Database
+from env import ADMINS
+from keyboards import main_keyboard
 
 
 # проверка на админа

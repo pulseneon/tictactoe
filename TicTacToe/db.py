@@ -172,7 +172,7 @@ class Database:
                 return game
         return None
 
-    def cancel_game(self, game_id) -> []:
+    def cancel_game(self, game_id) :
         return_list = []
 
         Session = sessionmaker(autoflush=False, bind=self.engine)
@@ -193,7 +193,7 @@ class Database:
             return return_list
 
 
-    def find_gamefield(self, gamefield_id) -> object:
+    def find_gamefield(self, gamefield_id) -> Gamefield:
         Session = sessionmaker(autoflush=False, bind=self.engine)
         with Session(autoflush=False, bind=self.engine) as db:
             gamefield = db.query(Gamefield).filter(Gamefield.id == gamefield_id).first()
@@ -212,38 +212,173 @@ class Database:
 
             return False
 
-    def update_move_player_status(self, _move_player) -> object:
+    def update_move_player_status(self, game) -> object:
         Session = sessionmaker(autoflush=False, bind=self.engine)
         with Session(autoflush=False, bind=self.engine) as db:
-            game = db.query(Game).filter(Game.move_player == _move_player).first()
+            # game = db.query(Game).filter(Game.move_player == _move_player).first()
             if game is not None:
-                game.move_player = not _move_player
-                db.commit()
-                return True
-            return False
-
-    def update_gamefield(self, _id, player) -> object:  # если 1 то крестик, если 2 то нолик
-        Session = sessionmaker(autoflush=False, bind=self.engine)
-        with Session(autoflush=False, bind=self.engine) as db:
-            match _id:
-                case '1':
-                    game_field = db.query(Gamefield).filter(Gamefield.field1 == 0).first()
-
-                    if game_field.field1 == 0:
-                        db.field1 = player
-                        db.commit()
-                        return
-                    return False
+                with Session() as session:
+                    game.move_player = not game.move_player
+                    session.merge(game)
+                    session.commit()
+                
+            return Game
 
     def edit_gamefield(self, gamefield_id, field_obj, value) -> object:
         field = self.find_gamefield(gamefield_id)
-        field.field_obj = value
+        # field.field_obj = value
         Session = sessionmaker(autoflush=False, bind=self.engine)
-        with Session() as session:
-            session.merge(field)
-            session.commit()
+        match field_obj:
+                case '1':
+                    with Session() as session:
+                        field.field1 = value
+                        session.merge(field)
+                        session.commit()
+
+                case '2':
+                    with Session() as session:
+                        field.field2 = value
+                        session.merge(field)
+                        session.commit()
+
+                case '3':
+                    with Session() as session:
+                        field.field3 = value
+                        session.merge(field)
+                        session.commit()
+
+                case '4':
+                    with Session() as session:
+                        field.field4 = value
+                        session.merge(field)
+                        session.commit()
+
+                case '5':
+                    with Session() as session:
+                        field.field5 = value
+                        session.merge(field)
+                        session.commit()
+
+                case '6':
+                    with Session() as session:
+                        field.field6 = value
+                        session.merge(field)
+                        session.commit()
+
+                case '7':
+                    with Session() as session:
+                        field.field7 = value
+                        session.merge(field)
+                        session.commit()
+
+                case '8':
+                    with Session() as session:
+                        field.field8 = value
+                        session.merge(field)
+                        session.commit()
+
+                case '9':
+                    with Session() as session:
+                        field.field9 = value
+                        session.merge(field)
+                        session.commit()
+                
 
         return field
+
+
+    def get_gamefield(self, gamefield_id, field_obj) -> object:
+        field = self.find_gamefield(gamefield_id)
+        
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        match field_obj:
+                case '1':
+                    with Session() as session:
+                        if field.field1 is not 0:
+                            return field.field1
+
+                case '2':
+                    with Session() as session:
+                        if field.field2 is not 0:
+                            return field.field2
+                
+                case '3':
+                    with Session() as session:
+                        if field.field3 is not 0:
+                            return field.field3
+
+                case '4':
+                    with Session() as session:
+                        if field.field4 is not 0:
+                            return field.field4 
+
+                case '5':
+                    with Session() as session:
+                        if field.field5 is not 0:
+                            return field.field5
+
+                case '6':
+                    with Session() as session:
+                        if field.field6 is not 0:
+                            return field.field6
+
+                case '7':
+                    with Session() as session:
+                        if field.field7 is not 0:
+                            return field.field7
+
+                case '8':
+                    with Session() as session:
+                        if field.field8 is not 0:
+                            return field.field8
+
+                case '9':
+                    with Session() as session:
+                        if field.field9 is not 0:
+                            return field.field9
+
+        return 0
+
+    def check_win(self,gamefield_id,player) ->object:
+        
+        win_conditions = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+    ]
+
+        fields = [self.get_gamefield(gamefield_id,'1'),
+        self.get_gamefield(gamefield_id,'2'),
+        self.get_gamefield(gamefield_id,'3'),
+        self.get_gamefield(gamefield_id,'4'),
+        self.get_gamefield(gamefield_id,'5'),
+        self.get_gamefield(gamefield_id,'6'),
+        self.get_gamefield(gamefield_id,'7'),
+        self.get_gamefield(gamefield_id,'8'),
+        self.get_gamefield(gamefield_id,'9')]
+
+        for index in win_conditions:
+            if fields[index[0]] == player and fields[index[1]] == player and fields[index[2]] == player:
+                return True       
+        return False
+
+
+    def check_draw(self,gamefield_id) ->object:
+
+        fields = [self.get_gamefield(gamefield_id,'1'),
+        self.get_gamefield(gamefield_id,'2'),
+        self.get_gamefield(gamefield_id,'3'),
+        self.get_gamefield(gamefield_id,'4'),
+        self.get_gamefield(gamefield_id,'5'),
+        self.get_gamefield(gamefield_id,'6'),
+        self.get_gamefield(gamefield_id,'7'),
+        self.get_gamefield(gamefield_id,'8'),
+        self.get_gamefield(gamefield_id,'9')]
+
+        for index in fields:
+            if index == 0:
+                return False 
+        return True
 
     def get_users(self):
         Session = sessionmaker(autoflush=False, bind=self.engine)
