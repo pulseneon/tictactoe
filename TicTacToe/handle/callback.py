@@ -40,7 +40,7 @@ class Callback:
         self.db.register_user(self.data, self.arg)
         Logging.info(f'Зарегистрирован пользователь с id: {self.data.from_user.id}')
         self.bot.send_message(chat_id=self.data.from_user.id, text=self.get_str('successfully_registered', self.arg),
-                              reply_markup=main_keyboard())
+                              reply_markup=main_keyboard(self.data.from_user.id))
 
     def _handle_menu(self):
         match self.arg:
@@ -58,6 +58,22 @@ class Callback:
         this_user = self.db.find_user(self.data.from_user.id)
         Logging.info(f'Игрок {this_user.username} делает ход в игре №{this_user.game_id}')
         game = self.db.find_game(this_user.game_id)
+
+        # сдаться
+        if self.arg == 'leave':
+            self.db.calc_game_result(this_user.user_id)
+            Logging().info(f'Игрок {this_user.username} сдался в игре №{this_user.game_id}')
+            players_id = self.db.cancel_game(this_user.game_id)
+
+            self.bot.send_message(chat_id=this_user.user_id, text=f"Вы успешно сдались",
+                                  reply_markup=main_keyboard(this_user.user_id))
+
+            for player_id in players_id:
+                if player_id != this_user.user_id:
+                    self.bot.send_message(chat_id=player_id, text=f"Ваш соперник сдался",
+                                          reply_markup=main_keyboard(this_user.user_id))
+
+            return
 
         if this_user.user_id == game.first_player_id and game.move_player is False:
             # не ход первого игрока
@@ -150,7 +166,7 @@ class Callback:
 
         for player_id in players_id:
             self.bot.send_message(chat_id=player_id, text=f"Предложение игры отклонено",
-                                  reply_markup=main_keyboard())
+                                  reply_markup=main_keyboard(player_id))
 
     def _ready_to_play(self):
         match self.arg:
@@ -176,7 +192,7 @@ class Callback:
 
                     for player_id in players_id:
                         self.bot.send_message(chat_id=player_id, text=f"Предложение игры отклонено",
-                                              reply_markup=main_keyboard())
+                                              reply_markup=main_keyboard(player_id))
                 except Exception as ex:
                     Logging().warning(f'Произошла ошибка: {str(ex)}')
 
@@ -190,7 +206,7 @@ class Callback:
             find_user = self.db.find_user_by_url(message.text)
             if find_user is None:
                 self.bot.send_message(chat_id=message.from_user.id, text=f"{message.text} игрок не был найден.",
-                                    reply_markup=main_keyboard())
+                                    reply_markup=main_keyboard(message.from_user.id))
                 return
 
         find_game_id = find_user.game_id
@@ -209,5 +225,5 @@ class Callback:
 
         else:  # такого не должно быть
             self.bot.send_message(chat_id=message.from_user.id, text=f"Кто-то из вас уже в игре\n(для выхода из неё напишите `/cancel_game`)", parse_mode='markdown',
-                                  reply_markup=main_keyboard())
+                                  reply_markup=main_keyboard(message.from_user.id))
             return

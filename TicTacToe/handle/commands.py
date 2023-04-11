@@ -27,7 +27,7 @@ class Commands:
     def menu(self, message):
         text = 'Было открыто главное меню'
         Logging.info(f'{message.from_user.username} использовал команду /menu')
-        msg = self.bot.send_message(message.chat.id, text, parse_mode='markdown', reply_markup=main_keyboard())
+        msg = self.bot.send_message(message.chat.id, text, parse_mode='markdown', reply_markup=main_keyboard(message.chat.id))
 
     def cancel_game(self, message):
         try:
@@ -39,8 +39,8 @@ class Commands:
             for player_id in players_id:
                 Logging.info(f'Для игрока с id: {player_id} была отменена игра через /cancel_game')
                 self.bot.send_message(chat_id=player_id, text=f"Вы завершили игру",
-                                      reply_markup=main_keyboard())
+                                      reply_markup=main_keyboard(message.chat.id))
         except Exception as ex:
             self.bot.send_message(chat_id=this_user.user_id, text=f"Произошла непредвиденная ошибка.",
-                                  reply_markup=main_keyboard())
+                                  reply_markup=main_keyboard(message.chat.id))
             Logging.error(f'Произошла ошибка при отмене игры через команду. Ошибка: {str(ex)}')

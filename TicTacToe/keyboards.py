@@ -2,13 +2,23 @@
 from telebot import types
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+from TicTacToe.db import Database
 from language.langs import Language
 
-def main_keyboard():
+def main_keyboard(user_id):
+    db = Database()
     markup = InlineKeyboardMarkup()
     markup.row_width = 3
-    markup.add(InlineKeyboardButton('Играть', callback_data=f'main:play')) # напишите его nickname или telegram id 
-    markup.add(InlineKeyboardButton('Играть с AI', callback_data=f'main:play_with_bot')) # выберите сложность: легкая/средняя/тяжелая
+
+    user_obj = db.find_user(user_id)
+
+    if user_obj.game_id == -1:
+        markup.add(InlineKeyboardButton('Играть', callback_data=f'main:play')) # напишите его nickname или telegram id
+        markup.add(InlineKeyboardButton('Играть с AI', callback_data=f'main:play_with_bot')) # выберите сложность: легкая/средняя/тяжелая
+    else:
+        markup.add(InlineKeyboardButton('Вернуться к игре', callback_data=f'main:return_play'))
+        markup.add(InlineKeyboardButton('Покинуть игру', callback_data=f'main:cancel_game'))
     markup.add(InlineKeyboardButton('Статистика', callback_data=f'main:stats')) # статистика профиля
     markup.add(InlineKeyboardButton('Рейтинг', callback_data=f'main:rate')) # рейтинг всех игроков 
     '''
@@ -29,8 +39,8 @@ def main_keyboard():
 
 def choose_game_type():
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton('Играть с рандомным игроком', callback_data=f'choose_game_type:random')) 
     markup.add(InlineKeyboardButton('Играть с другом', callback_data=f'choose_game_type:find'))
+    markup.add(InlineKeyboardButton('Играть с рандомным игроком', callback_data=f'choose_game_type:random'))
     
     return markup
 

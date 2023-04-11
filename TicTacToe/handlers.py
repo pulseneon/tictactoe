@@ -42,4 +42,4 @@ class Handlers:
             return
 
         msg = self.bot.send_message(message.chat.id, f'Воспользуйтесь клавиатурой ниже для работы',
-                                    reply_markup=main_keyboard())
+                                    reply_markup=main_keyboard(message.chat.id))
