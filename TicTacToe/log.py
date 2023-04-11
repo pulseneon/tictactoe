@@ -31,8 +31,8 @@ class Logging:
     @staticmethod
     def init_path():
         log_file_path = generate_path()
-        with open(file=log_file_path, mode='w', encoding='utf-8') as f:
-            pass
+        with open(file=log_file_path, mode='w+', encoding='utf-8') as f:
+            f.write(f'{format_time_log()} [Info] Файл логгирования создан')
 
     @staticmethod
     def get_path():
@@ -41,13 +41,12 @@ class Logging:
         if files:
             files.sort(key=lambda x: os.path.getctime(os.path.join(dir_path, x)))
             latest_file = os.path.join(dir_path, files[-1])
-            return(latest_file)
+            return latest_file
 
     @staticmethod
     def add_log(color, tag, message):
-        with open(file=Logging.get_path(), mode='w', encoding='utf-8') as f:
-            f.seek(0)
-            f.write(f'{format_time_log()} [{tag}] {message}')
+        with open(file=Logging.get_path(), mode='a', encoding='utf-8') as f:
+            f.write(f'{format_time_log()} [{tag}] {message}\n')
         print(f'{BOLD}{color}{format_time_log()}[{tag}] {RESET}{message}')
 
     @staticmethod

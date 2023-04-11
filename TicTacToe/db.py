@@ -435,47 +435,6 @@ class Database:
 
             session.commit()
 
-    # в теории работает
-    """
-    def finish_game(self, first_player, second_player, winner):
-        
-        # winner = 0 - draw
-        # winner = 1 - first_player win,
-        # winner = 2 - second_player win
-
-        Session = sessionmaker(autoflush=False, bind=self.engine)
-        with Session(autoflush=False, bind=self.engine) as db:
-            user_one = self.find_user(first_player)
-            user_two = self.find_user(second_player)
-
-            db.delete(user_one)
-            db.delete(user_two)
-
-            user_one.game_id = -1
-            user_two.game_id = -1
-
-            user_one.games_count = user_one.games_count + 1
-            user_two.games_count = user_two.games_count + 1
-
-            if winner == 1:
-                user_one.rating = user_one.rating + 10
-                user_two.rating = user_two.rating - 5
-
-                user_one.wins_count = user_one.wins_count + 1
-                user_two.lose_count = user_two.wins_count + 1
-            if winner == 2:
-                user_two.rating = user_two.rating + 10
-                user_one.rating = user_one.rating - 5
-
-                user_two.wins_count = user_two.wins_count + 1
-                user_one.lose_count = user_one.wins_count + 1
-
-            db.add(user_one)
-            db.add(user_two)
-
-        return True 
-    """
-
     def finish_game(self, first_player_id, second_player_id, winner):
         try:
             Session = sessionmaker(autoflush=False, bind=self.engine)

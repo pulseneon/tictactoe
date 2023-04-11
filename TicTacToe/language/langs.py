@@ -1,9 +1,6 @@
 import os
 import yaml
 
-from TicTacToe.log import Logging
-
-
 class Language:
     def __init__(self) -> None:
         self.languages: dict = {}
@@ -17,11 +14,9 @@ class Language:
             else:
                 raise NotAvailable
         except KeyError:
-            Logging.warn("KeyError языка. Возвращаем ему en.yaml")
             # en.yaml should always be available
             return self.get_default_string(string)
         except NotAvailable:
-            Logging.warn("Язык недоступен. Возвращаем по умолчанию")
             # changing the language to basic and return his
             return self.get_default_string(string)
 
@@ -34,7 +29,6 @@ class Language:
     def get_default_string(self, string: str):
         en_string = self.languages['en'].get(string)
         if en_string is None:
-            Logging.warn(f'Строка не была найдена: {string}')
             return StringNotFound(f'Error: string "{string}" not found.')
         return en_string
 
@@ -43,7 +37,6 @@ class Language:
         path = r'./language/' # /TicTacToe
         for filename in os.listdir(path):
             if filename.endswith('.yaml'):
-                Logging.info(f'Загружен файл языка: {filename}')
                 language_name = filename[:-5]
                 self.languages[language_name] = yaml.safe_load(
                     open(path + filename, encoding='utf8')
