@@ -1,10 +1,7 @@
-# ! стоит добавить проверку всех действий не в игре ли пользователь и на выход из неё !
-
 from db import Database
 from keyboards import main_keyboard, choose_game_type, ready_keyaboard, gamefield, cancel_keyboard
 from language.langs import Language
 from log import Logging
-
 
 class Callback:
     def __init__(self, bot, call) -> None:
@@ -166,7 +163,26 @@ class Callback:
     def _handle_choose_game_type(self):
         match self.arg:
             case 'random':
-                pass
+                find_user = self.db.find_user(self.data.from_user.id)
+                while True:
+                    random_user = self.db.get_random_user()
+                    if random_user.user_id != find_user.user_id:
+                        break
+
+                find_game_id = find_user.game_id
+                random_game_id = random_user.game_id
+
+                null_game = -1
+
+                if find_game_id == null_game and random_game_id == null_game:
+                    self.bot.send_message(chat_id=find_user.user_id, text=f"Приглашение отправлено игроку {random_user.username}. Ожидаем ответа.",
+                                          reply_markup=cancel_keyboard())
+                    self.bot.send_message(chat_id=random_user.user_id,
+                                          text=f"{find_user.username} пригласил вас сыграть вместе с ним.",
+                                          reply_markup=ready_keyaboard())
+
+                    game = self.db.create_game(find_user.user_id, random_user.user_id)
+
             case 'find':
                 text = f'Упомяни игрока, с которым хочешь поиграть\n\nНапример: ```@username```'
                 msg = self.bot.send_message(chat_id=self.data.from_user.id, text=text, parse_mode='MarkdownV2',
@@ -208,7 +224,7 @@ class Callback:
                         self.bot.send_message(chat_id=player_id, text=f"Предложение игры отклонено",
                                               reply_markup=main_keyboard(player_id))
                 except Exception as ex:
-                    Logging().warning(f'Произошла ошибка: {str(ex)}')
+                    Logging().warn(f'Произошла ошибка: {str(ex)}')
 
     # регистрация игры
     def play_register(self, message, finded_user=None):
