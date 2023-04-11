@@ -428,18 +428,20 @@ class Database:
 
             lose_user.lose_count = lose_user.lose_count + 1
             lose_user.rating = lose_user.rating - 5
+            lose_user.games_count = lose_user.games_count + 1
+            win_user.games_count = win_user.games_count + 1
             win_user.wins_count = win_user.wins_count + 1
             win_user.rating = win_user.rating + 5
 
             session.commit()
 
     # в теории работает
+    """
     def finish_game(self, first_player, second_player, winner):
-        '''
-          winner = 0 - draw
-          winner = 1 - first_player win, 
-          winner = 2 - second_player win
-        '''
+        
+        # winner = 0 - draw
+        # winner = 1 - first_player win,
+        # winner = 2 - second_player win
 
         Session = sessionmaker(autoflush=False, bind=self.engine)
         with Session(autoflush=False, bind=self.engine) as db:
@@ -471,4 +473,42 @@ class Database:
             db.add(user_one)
             db.add(user_two)
 
-        return True
+        return True 
+    """
+
+    def finish_game(self, first_player_id, second_player_id, winner):
+        try:
+            Session = sessionmaker(autoflush=False, bind=self.engine)
+            with Session() as session:
+                # Find the user objects for the two players
+                first_player_obj = self.find_user(first_player_id)
+                second_player_obj = self.find_user(second_player_id)
+
+                # Update the game statistics for the two players
+                first_player_obj.game_id = -1
+                second_player_obj.game_id = -1
+
+                first_player_obj.games_count += 1
+                second_player_obj.games_count += 1
+
+                if winner == 1:
+                    first_player_obj.wins_count += 1
+                    second_player_obj.lose_count += 1
+                elif winner == 2:
+                    second_player_obj.wins_count += 1
+                    first_player_obj.lose_count += 1
+
+                # Update the ratings of the two players
+                rating_change = 10
+                if winner == 0:
+                    rating_change = 0
+                elif winner == 2:
+                    rating_change *= -1
+                first_player_obj.rating += rating_change
+                second_player_obj.rating -= rating_change
+
+                # Update the user objects in the database
+                session.add_all([first_player_obj, second_player_obj])
+                session.commit()
+        except Exception as ex:
+            Logging.fatal(f'Ошибка завершения игры. Ошибка: {str(ex)}')

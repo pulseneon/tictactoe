@@ -93,7 +93,7 @@ class Callback:
                 self.bot.send_message(chat_id=this_user.user_id, text=f"Ничья", reply_markup=None)
                 self.bot.send_message(chat_id=game.second_player_id, text=f"Ничья", reply_markup=None)
 
-                self.db.finish_game(game.first_player_id,game.second_player_id,0)
+                self.db.finish_game(game.first_player_id, game.second_player_id, 0)
                 return
 
             # проверка на победу
