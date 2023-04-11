@@ -47,14 +47,18 @@ class Callback:
             case 'play':
                 self.bot.send_message(chat_id=self.data.from_user.id, text=self.get_str('type_of_game', self.lang),
                                       reply_markup=choose_game_type())
-            case 'play_with_bot':
-                pass
+            case 'return_play':
+                self.bot.send_message(chat_id=self.data.from_user.id, text=f"Продолжайте игру", reply_markup=gamefield())
+            case 'cancel_game':
+                this_user = self.db.find_user(self.data.from_user.id)
+                self.give_up(this_user)
+
             case 'stats':
                 this_user = self.db.find_user(self.data.from_user.id)
                
                 self.bot.send_message(chat_id=self.data.from_user.id,
                  text="Статистика игрока @{username}\nUser id: {user_id}\nКоличество сыграных игр:  {games_count}\nКоличество выигранных игр: {wins_count}\nКоличество проигранных игр: {lose_count}\nРейтинг: {rating}".format(username=this_user.username, user_id=this_user.user_id, games_count=this_user.games_count, wins_count = this_user.wins_count,lose_count = this_user.lose_count,rating = this_user.rating ),
-                                      reply_markup=None)
+                                      reply_markup=main_keyboard(self.data.from_user.id))
             case 'rate':
                 self.bot.send_message(chat_id=self.data.from_user.id, text="Ожидайте...",
                                       reply_markup=None)
@@ -72,7 +76,7 @@ class Callback:
                                       
                 message += "\nВы на {place} месте, ваш рейтинг: {rating_out}".format(place = place_in_the_rating,rating_out = rating_for_outputng)
                 self.bot.send_message(chat_id=self.data.from_user.id, text=message,
-                                      reply_markup=None)
+                                      reply_markup=main_keyboard(self.data.from_user.id))
                         
 
     def _handle_field(self):
@@ -82,18 +86,7 @@ class Callback:
 
         # сдаться
         if self.arg == 'leave':
-            self.db.calc_game_result(this_user.user_id)
-            Logging().info(f'Игрок {this_user.username} сдался в игре №{this_user.game_id}')
-            players_id = self.db.cancel_game(this_user.game_id)
-
-            self.bot.send_message(chat_id=this_user.user_id, text=f"Вы успешно сдались",
-                                  reply_markup=main_keyboard(this_user.user_id))
-
-            for player_id in players_id:
-                if player_id != this_user.user_id:
-                    self.bot.send_message(chat_id=player_id, text=f"Ваш соперник сдался",
-                                          reply_markup=main_keyboard(this_user.user_id))
-
+            self.give_up(this_user)
             return
 
         if this_user.user_id == game.first_player_id and game.move_player is False:
@@ -248,3 +241,16 @@ class Callback:
             self.bot.send_message(chat_id=message.from_user.id, text=f"Кто-то из вас уже в игре\n(для выхода из неё напишите `/cancel_game`)", parse_mode='markdown',
                                   reply_markup=main_keyboard(message.from_user.id))
             return
+
+    def give_up(self, this_user):
+        self.db.calc_game_result(this_user.user_id)
+        Logging().info(f'Игрок {this_user.username} сдался в игре №{this_user.game_id}')
+        players_id = self.db.cancel_game(this_user.game_id)
+
+        self.bot.send_message(chat_id=this_user.user_id, text=f"Вы успешно сдались",
+                              reply_markup=main_keyboard(this_user.user_id))
+
+        for player_id in players_id:
+            if player_id != this_user.user_id:
+                self.bot.send_message(chat_id=player_id, text=f"Ваш соперник сдался",
+                                      reply_markup=main_keyboard(this_user.user_id))

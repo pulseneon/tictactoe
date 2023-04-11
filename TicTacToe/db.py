@@ -90,25 +90,6 @@ class Database:
 
         return None
 
- 
-    def find_game_id_by_user(self, user_id) -> Game:
-        Session = sessionmaker(autoflush=False, bind=self.engine)
-        with Session(autoflush=False, bind=self.engine) as db:
-            game_id = db.query(Game).filter(Game.first_player_id == user_id).first()
-            db.close()
-            if game_id is not None:
-                return game_id.gamefield_id
-        return None
-
-    def add_to_game(self, game_id, user_id) -> object:
-        user = self.find_user(user_id)
-        user.game_id = game_id
-        with sessionmaker(autoflush=False, bind=self.engine)() as db:
-            db.merge(user)
-
-        db.close()
-        return user
-
     def find_user_by_tag(self, user_tag) -> User:
         Session = sessionmaker(autoflush=False, bind=self.engine)
         user_tag = user_tag[1:]  # убираем @
@@ -212,16 +193,6 @@ class Database:
                 return gamefield
         return None
 
-    def check_move_player_status(self) -> object:
-        Session = sessionmaker(autoflush=False, bind=self.engine)
-        with Session(autoflush=False, bind=self.engine) as db:
-            player = db.query(Game).filter(Game.move_player).first()
-            db.close()
-            if player.move_player is not None:
-                return player.move_player
-
-            return False
-
     def update_move_player_status(self, game) -> object:
         Session = sessionmaker(autoflush=False, bind=self.engine)
         with Session(autoflush=False, bind=self.engine) as db:
@@ -304,47 +275,47 @@ class Database:
         match field_obj:
                 case '1':
                     with Session() as session:
-                        if field.field1 is not 0:
+                        if field.field1 != 0:
                             return field.field1
 
                 case '2':
                     with Session() as session:
-                        if field.field2 is not 0:
+                        if field.field2 != 0:
                             return field.field2
                 
                 case '3':
                     with Session() as session:
-                        if field.field3 is not 0:
+                        if field.field3 != 0:
                             return field.field3
 
                 case '4':
                     with Session() as session:
-                        if field.field4 is not 0:
+                        if field.field4 != 0:
                             return field.field4 
 
                 case '5':
                     with Session() as session:
-                        if field.field5 is not 0:
+                        if field.field5 != 0:
                             return field.field5
 
                 case '6':
                     with Session() as session:
-                        if field.field6 is not 0:
+                        if field.field6 != 0:
                             return field.field6
 
                 case '7':
                     with Session() as session:
-                        if field.field7 is not 0:
+                        if field.field7 != 0:
                             return field.field7
 
                 case '8':
                     with Session() as session:
-                        if field.field8 is not 0:
+                        if field.field8 != 0:
                             return field.field8
 
                 case '9':
                     with Session() as session:
-                        if field.field9 is not 0:
+                        if field.field9 != 0:
                             return field.field9
 
         return 0
@@ -390,29 +361,10 @@ class Database:
                 return False 
         return True
 
-    def calc_rating(self,player_id) -> object:
-        rating_list = []
-        index = 1
-        while True:
-            user = self.get_users_by_id(index)
-            if user is not None:
-                rating_list.append(user)
-                index += 1
-            else:
-                break
-        
-        rating_list.sort(key = lambda x: x.rating,reverse=True)
-
-        return rating_list
-
-    def get_users_by_id(self,index) -> User:
+    def calc_rating(self,player_id):
         Session = sessionmaker(autoflush=False, bind=self.engine)
-        with Session(autoflush=False, bind=self.engine) as db:
-            user = db.query(User).filter(User.id == index).first()
-            db.close()
-            if user is not None:
-                return user
-        return None
+        with Session() as session:
+            return session.query(User).order_by(User.rating.desc()).limit(10).all()
 
     def get_users(self):
         Session = sessionmaker(autoflush=False, bind=self.engine)

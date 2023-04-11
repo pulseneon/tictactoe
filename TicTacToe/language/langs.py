@@ -34,7 +34,7 @@ class Language:
 
     # reload available langs
     def update_languages(self):
-        path = r'./TicTacToe/language/' # /TicTacToe
+        path = r'./language/' # /TicTacToe
         for filename in os.listdir(path):
             if filename.endswith('.yaml'):
                 language_name = filename[:-5]

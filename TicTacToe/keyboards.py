@@ -15,7 +15,6 @@ def main_keyboard(user_id):
 
     if user_obj.game_id == -1:
         markup.add(InlineKeyboardButton('Играть', callback_data=f'main:play')) # напишите его nickname или telegram id
-        markup.add(InlineKeyboardButton('Играть с AI', callback_data=f'main:play_with_bot')) # выберите сложность: легкая/средняя/тяжелая
     else:
         markup.add(InlineKeyboardButton('Вернуться к игре', callback_data=f'main:return_play'))
         markup.add(InlineKeyboardButton('Покинуть игру', callback_data=f'main:cancel_game'))
@@ -70,14 +69,6 @@ def ready_keyaboard():
     markup.add(InlineKeyboardButton('Готов', callback_data=f'ready:true')) 
     markup.add(InlineKeyboardButton('Не готов', callback_data=f'ready:false'))
     
-    return markup
-
-def difficulty_keyboard():
-    markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton('Легкая', callback_data=f'difficulty:easy')) 
-    markup.add(InlineKeyboardButton('Средняя', callback_data=f'difficulty:middle'))
-    markup.add(InlineKeyboardButton('Тяжелая', callback_data=f'difficulty:hard'))
-
     return markup
 
 def gamefield():
