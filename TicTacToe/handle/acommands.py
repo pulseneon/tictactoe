@@ -2,7 +2,7 @@ from db import Database
 from env import ADMINS
 from keyboards import main_keyboard
 
-from TicTacToe.log import Logging
+from log import Logging
 
 
 # проверка на админа

@@ -3,7 +3,7 @@ from telebot import types
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from TicTacToe.db import Database
+from db import Database
 from language.langs import Language
 
 def main_keyboard(user_id):

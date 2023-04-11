@@ -50,9 +50,30 @@ class Callback:
             case 'play_with_bot':
                 pass
             case 'stats':
-                pass
+                this_user = self.db.find_user(self.data.from_user.id)
+               
+                self.bot.send_message(chat_id=self.data.from_user.id,
+                 text="Статистика игрока @{username}\nUser id: {user_id}\nКоличество сыграных игр:  {games_count}\nКоличество выигранных игр: {wins_count}\nКоличество проигранных игр: {lose_count}\nРейтинг: {rating}".format(username=this_user.username, user_id=this_user.user_id, games_count=this_user.games_count, wins_count = this_user.wins_count,lose_count = this_user.lose_count,rating = this_user.rating ),
+                                      reply_markup=None)
             case 'rate':
-                pass
+                self.bot.send_message(chat_id=self.data.from_user.id, text="Ожидайте...",
+                                      reply_markup=None)
+                rating_list = self.db.calc_rating(self.data.from_user.id)
+                message = 'Рейтинг'
+                for index, player in enumerate(rating_list):
+                    if player.user_id == self.data.from_user.id:
+                        rating_for_outputng = player.rating
+                        place_in_the_rating = index+1
+
+                    if index <= 10:
+                        message +="\n{count_of_player}. @{username} — {rating}".format(count_of_player = index+1, username = player.username, rating = player.rating)
+                
+                message +="\n..."
+                                      
+                message += "\nВы на {place} месте, ваш рейтинг: {rating_out}".format(place = place_in_the_rating,rating_out = rating_for_outputng)
+                self.bot.send_message(chat_id=self.data.from_user.id, text=message,
+                                      reply_markup=None)
+                        
 
     def _handle_field(self):
         this_user = self.db.find_user(self.data.from_user.id)

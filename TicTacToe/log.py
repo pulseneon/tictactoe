@@ -24,7 +24,7 @@ def format_time_log():
 
 
 def generate_path():
-    return f'logs/log {format_time_name()}.txt'
+    return f'./TicTacToe/logs/log {format_time_name()}.txt'   #TicTacToe
 
 
 class Logging:
@@ -36,7 +36,7 @@ class Logging:
 
     @staticmethod
     def get_path():
-        dir_path = "./logs/"
+        dir_path = "./TicTacToe/logs/"      #TicTacToe
         files = os.listdir(dir_path)
         if files:
             files.sort(key=lambda x: os.path.getctime(os.path.join(dir_path, x)))

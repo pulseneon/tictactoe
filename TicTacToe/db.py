@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from sqlalchemy import BigInteger, Boolean, Column, DateTime, Integer, String, create_engine, ForeignKey, func
 from sqlalchemy.orm import DeclarativeBase, relationship, sessionmaker
 
-from TicTacToe.log import Logging
+from log import Logging
 from env import DB_USER, DB_NAME, DB_HOST, DB_PASS
 
 
@@ -90,16 +90,7 @@ class Database:
 
         return None
 
-    def find_user_X(self, _id) -> object:
-        Session = sessionmaker(autoflush=False, bind=self.engine)
-        with Session(autoflush=False, bind=self.engine) as db:
-            user_X = db.query(Game).filter(Game.first_player_id == _id).first()
-            db.close()
-            if user_X is not None:
-                return user_X.first_player_id
-
-        return None
-
+ 
     def find_game_id_by_user(self, user_id) -> Game:
         Session = sessionmaker(autoflush=False, bind=self.engine)
         with Session(autoflush=False, bind=self.engine) as db:
@@ -398,6 +389,30 @@ class Database:
             if index == 0:
                 return False 
         return True
+
+    def calc_rating(self,player_id) -> object:
+        rating_list = []
+        index = 1
+        while True:
+            user = self.get_users_by_id(index)
+            if user is not None:
+                rating_list.append(user)
+                index += 1
+            else:
+                break
+        
+        rating_list.sort(key = lambda x: x.rating,reverse=True)
+
+        return rating_list
+
+    def get_users_by_id(self,index) -> User:
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        with Session(autoflush=False, bind=self.engine) as db:
+            user = db.query(User).filter(User.id == index).first()
+            db.close()
+            if user is not None:
+                return user
+        return None
 
     def get_users(self):
         Session = sessionmaker(autoflush=False, bind=self.engine)

@@ -2,7 +2,7 @@ from db import Database
 from language.langs import Language
 from keyboards import lang_keyboard, main_keyboard
 
-from TicTacToe.log import Logging
+from log import Logging
 
 
 # хз откуда она но она есть
