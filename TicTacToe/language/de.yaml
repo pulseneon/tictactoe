@@ -1,0 +1,7 @@
+available: true
+language: "Deutsch"
+
+# set languages
+language_suggestion: "Wählen Sie eine Sprache aus den vorgeschlagenen"
+curr_chat_lang: "s"
+set_chat_lang: ""

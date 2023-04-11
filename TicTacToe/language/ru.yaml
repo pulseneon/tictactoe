@@ -3,5 +3,5 @@ language: "Русский"
 
 # set languages
 language_suggestion: "Выберите язык из предложенных"
-curr_chat_lang: "привет"
-set_chat_lang: "выбран русский"
+successfully_registered: "Вы зарегистрированы"
+type_of_game: "Выберите тип игры"
