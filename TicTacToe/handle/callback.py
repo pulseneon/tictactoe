@@ -121,6 +121,7 @@ class Callback:
                 self.bot.send_message(chat_id=game.second_player_id, text=f"Ничья", reply_markup=None)
 
                 self.db.finish_game(game.first_player_id, game.second_player_id, 0)
+                self.stats_after_game(this_user.user_id, game.second_player_id, 0)
                 return
 
             # проверка на победу
@@ -128,7 +129,8 @@ class Callback:
                 self.bot.send_message(chat_id=this_user.user_id, text=f"Крестик победил!", reply_markup=None)
                 self.bot.send_message(chat_id=game.second_player_id, text=f"Крестик победил!", reply_markup=None)
 
-                self.db.finish_game(game.first_player_id,game.second_player_id, 1)
+                self.db.finish_game(game.first_player_id, game.second_player_id, 1)
+                self.stats_after_game(game.first_player_id, game.second_player_id)
                 Logging.info(f'Игра №{game.id} завершилась')
                 return
 
@@ -145,6 +147,7 @@ class Callback:
                 self.bot.send_message(chat_id=game.second_player_id, text=f"Ничья", reply_markup=None)
 
                 self.db.finish_game(game.first_player_id,game.second_player_id,0)
+                self.stats_after_game(this_user.user_id, game.second_player_id, 0)
                 Logging.info(f'Игра №{game.id} завершилась')
                 return
 
@@ -154,6 +157,7 @@ class Callback:
                 self.bot.send_message(chat_id=game.first_player_id, text=f"Нолик победил!", reply_markup=None)
 
                 self.db.finish_game(game.first_player_id,game.second_player_id,2)
+                self.stats_after_game(game.second_player_id, game.first_player_id)
                 Logging.info(f'Игра №{game.id} завершилась')
                 return
 
@@ -264,9 +268,25 @@ class Callback:
         players_id = self.db.cancel_game(this_user.game_id)
 
         self.bot.send_message(chat_id=this_user.user_id, text=f"Вы успешно сдались",
-                              reply_markup=main_keyboard(this_user.user_id))
+                              reply_markup=None)
 
         for player_id in players_id:
             if player_id != this_user.user_id:
                 self.bot.send_message(chat_id=player_id, text=f"Ваш соперник сдался",
-                                      reply_markup=main_keyboard(this_user.user_id))
+                                      reply_markup=None)
+                self.stats_after_game(player_id, this_user.user_id)
+
+    def stats_after_game(self, winner_id, loser_id, val=1):
+        winner = self.db.find_user(winner_id)
+        winner_text = f'Ваша статистика изменилась после игры: \n🔺 Рейтинг: {winner.rating} (+10)\n🔺 Игр: {winner.games_count} (+1)\n🔺Побед: {winner.wins_count} (+1)'
+        loser = self.db.find_user(loser_id)
+        loser_text = f'Ваша статистика изменилась после игры: \n🔻 Рейтинг: {loser.rating} (-10)\n🔺 Игр: {loser.games_count} (+1)\n🔺Поражений: {loser.lose_count} (+1)'
+
+        if val == 0:
+            winner_text = f'Ваша статистика не изменилась после игры: \n♦️ Рейтинг: {winner.rating}\n♦️ Игр: {winner.games_count}\n♦️Побед: {winner.wins_count}'
+            loser_text = f'Ваша статистика не изменилась после игры: \n♦️ Рейтинг: {winner.rating}\n♦️ Игр: {winner.games_count}\n♦️Побед: {winner.wins_count}'
+
+        self.bot.send_message(chat_id=winner_id, text=winner_text,
+                              reply_markup=main_keyboard(winner.user_id))
+        self.bot.send_message(chat_id=loser_id, text=loser_text,
+                              reply_markup=main_keyboard(loser.user_id))

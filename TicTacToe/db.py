@@ -395,18 +395,18 @@ class Database:
                 win_user = session.query(User).filter(User.user_id == game.first_player_id).first()
 
             lose_user.lose_count = lose_user.lose_count + 1
-            lose_user.rating = lose_user.rating - 5
+            lose_user.rating = lose_user.rating - 10
             lose_user.games_count = lose_user.games_count + 1
             win_user.games_count = win_user.games_count + 1
             win_user.wins_count = win_user.wins_count + 1
-            win_user.rating = win_user.rating + 5
+            win_user.rating = win_user.rating + 10
 
             session.commit()
 
     def finish_game(self, first_player_id, second_player_id, winner):
         try:
             Session = sessionmaker(autoflush=False, bind=self.engine)
-            with Session() as session:
+            with Session() as session: # 0 - ничья 1 крестик 2 нолик
                 # Find the user objects for the two players
                 first_player_obj = self.find_user(first_player_id)
                 second_player_obj = self.find_user(second_player_id)
@@ -418,7 +418,7 @@ class Database:
                 first_player_obj.games_count += 1
                 second_player_obj.games_count += 1
 
-                if winner == 1:
+                if winner == 1: # победил крестик
                     first_player_obj.wins_count += 1
                     second_player_obj.lose_count += 1
                 elif winner == 2:
