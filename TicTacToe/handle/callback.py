@@ -3,6 +3,7 @@ from keyboards import main_keyboard, choose_game_type, ready_keyaboard, gamefiel
 from language.langs import Language
 from log import Logging
 
+from TicTacToe.generate_gamefield import Generate_gamefield
 from TicTacToe.keyboards import settings_keyboard, lang_keyboard
 
 
@@ -13,6 +14,7 @@ class Callback:
         self.bot = bot
         self.db = Database()
         self.langs = Language()
+        self.generate_gamefield = Generate_gamefield(self.db)
         self.lang = getattr(self.db.find_user(call.from_user.id), 'lang', 'en')
 
         self.get_str = self.langs.get_string_by_lang
@@ -133,6 +135,9 @@ class Callback:
         if gamefield_value == 1:
             # ход крестика
             self.bot.send_message(chat_id=this_user.user_id, text=f"Вы сделали ход на {self.arg} клетку", reply_markup=None)
+            self.bot.send_message(chat_id=this_user.user_id,
+                                  text=self.generate_gamefield.get_gamefield(game.gamefield_id),
+                                  reply_markup=gamefield())
             
             # проверка на ничью
             if self.db.check_draw(gamefield_id_from_user) == True:
@@ -153,12 +158,16 @@ class Callback:
                 Logging.info(f'Игра №{game.id} завершилась')
                 return
 
-            self.bot.send_message(chat_id=game.second_player_id, text=f"Крестик походил, ваша очередь", reply_markup=gamefield())
-            
+            self.bot.send_message(chat_id=game.second_player_id, text=f"Крестик походил, ваша очередь", reply_markup=None)
+            self.bot.send_message(chat_id=game.second_player_id, text=self.generate_gamefield.get_gamefield(game.gamefield_id),
+                                  reply_markup=gamefield())
             
         else:
             # ход нолика
             self.bot.send_message(chat_id=this_user.user_id, text=f"Вы сделали ход на {self.arg} клетку", reply_markup=None)
+            self.bot.send_message(chat_id=this_user.user_id,
+                                  text=self.generate_gamefield.get_gamefield(game.gamefield_id),
+                                  reply_markup=gamefield())
             
             # проверка на ничью
             if self.db.check_draw(gamefield_id_from_user) == True:
@@ -180,7 +189,10 @@ class Callback:
                 Logging.info(f'Игра №{game.id} завершилась')
                 return
 
-            self.bot.send_message(chat_id=game.first_player_id, text=f"Нолик походил, ваша очередь", reply_markup=gamefield())
+            self.bot.send_message(chat_id=game.first_player_id, text=f"Нолик походил, ваша очередь", reply_markup=None)
+            self.bot.send_message(chat_id=game.first_player_id,
+                                  text=self.generate_gamefield.get_gamefield(game.gamefield_id),
+                                  reply_markup=gamefield())
                         
 
     def _handle_choose_game_type(self):

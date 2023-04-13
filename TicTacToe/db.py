@@ -323,6 +323,11 @@ class Database:
 
         return 0
 
+    def get_gamefield_obj(self, gamefield_id) -> Gamefield:
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        with Session() as session:
+            return session.query(Gamefield).filter(Gamefield.id == gamefield_id).first()
+
     def check_win(self, gamefield_id, player) -> object:
 
         win_conditions = [
