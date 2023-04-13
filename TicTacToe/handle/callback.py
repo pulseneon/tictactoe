@@ -3,6 +3,9 @@ from keyboards import main_keyboard, choose_game_type, ready_keyaboard, gamefiel
 from language.langs import Language
 from log import Logging
 
+from TicTacToe.keyboards import settings_keyboard, lang_keyboard
+
+
 class Callback:
     def __init__(self, bot, call) -> None:
         self.arg = None
@@ -22,6 +25,8 @@ class Callback:
         match command:
             case 'lang':  # обработка работы с языком
                 self._handle_lang()
+            case 'change_lang':
+                self._handle_change_lang()
             case 'main':  # обработка нажатий главного меню
                 self._handle_menu()
             case 'field':  # обработка хода игрока
@@ -32,11 +37,20 @@ class Callback:
                 self._ready_to_play()
             case 'cancel_game':
                 self._cancel_game()
+            case 'settings':
+                self._handle_settings()
 
     def _handle_lang(self):
         self.db.register_user(self.data, self.arg)
         Logging.info(f'Зарегистрирован пользователь с id: {self.data.from_user.id}')
         self.bot.send_message(chat_id=self.data.from_user.id, text=self.get_str('successfully_registered', self.arg),
+                              reply_markup=main_keyboard(self.data.from_user.id))
+
+    def _handle_change_lang(self):
+        self.db.change_lang(self.data.from_user.id, self.arg)
+        user = self.db.find_user(self.data.from_user.id)
+        Logging.info(f'Пользователь с id: {self.data.from_user.id} сменил язык на {self.arg}')
+        self.bot.send_message(chat_id=self.data.from_user.id, text=self.get_str('lang_changed', user.lang),
                               reply_markup=main_keyboard(self.data.from_user.id))
 
     def _handle_menu(self):
@@ -74,6 +88,11 @@ class Callback:
                 message += "\nВы на {place} месте, ваш рейтинг: {rating_out}".format(place = place_in_the_rating,rating_out = rating_for_outputng)
                 self.bot.send_message(chat_id=self.data.from_user.id, text=message,
                                       reply_markup=main_keyboard(self.data.from_user.id))
+
+            case 'settings':
+                text = 'Настройки'
+                self.bot.send_message(chat_id=self.data.from_user.id, text=text,
+                              reply_markup=settings_keyboard())
                         
 
     def _handle_field(self):
@@ -290,3 +309,16 @@ class Callback:
                               reply_markup=main_keyboard(winner.user_id))
         self.bot.send_message(chat_id=loser_id, text=loser_text,
                               reply_markup=main_keyboard(loser.user_id))
+
+    def _handle_settings(self):
+        match self.arg:
+            case 'change_lang':
+                self.bot.send_message(chat_id=self.data.from_user.id, text='Выберите язык для смены из доступных: ',
+                    reply_markup=lang_keyboard(1))
+            case 'reset_stats':
+                self.db.reset_stats(self.data.from_user.id)
+                self.bot.send_message(chat_id=self.data.from_user.id, text='Вы успешно сбросили статистику профиля',
+                              reply_markup=main_keyboard(self.data.from_user.id))
+            case 'back':
+                self.bot.send_message(chat_id=self.data.from_user.id, text='Вы вернулись назад',
+                                      reply_markup=main_keyboard(self.data.from_user.id))

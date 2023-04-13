@@ -403,6 +403,36 @@ class Database:
 
             session.commit()
 
+    def change_lang(self, user_id, lang):
+        try:
+            Session = sessionmaker(autoflush=False, bind=self.engine)
+            with Session() as session:
+                user = session.query(User).filter(User.user_id == user_id).first()
+                user.lang = lang
+                session.commit()
+        except Exception as ex:
+            Logging.error(f'Ошибка изменения языка пользователя: {str(ex)}')
+
+    def reset_stats(self, user_id):
+        try:
+            Session = sessionmaker(autoflush=False, bind=self.engine)
+            with Session() as session:
+                user = session.query(User).filter(User.user_id == user_id).first()
+
+                Logging.debug(f'{user.games_count}')
+                if user is None:
+                    raise Exception('user is none')
+                user.games_count = 0
+                user.rating = 100
+                user.lose_count = 0
+                user.wins_count = 0
+                Logging.debug(f'{user.games_count}')
+
+                session.commit()
+                Logging.debug(f'закамитил')
+        except Exception as ex:
+            Logging.error(f'Ошибка ресета статистики пользователя: {str(ex)}')
+
     def finish_game(self, first_player_id, second_player_id, winner):
         try:
             Session = sessionmaker(autoflush=False, bind=self.engine)

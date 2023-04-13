@@ -43,7 +43,7 @@ def choose_game_type():
     
     return markup
 
-def lang_keyboard():
+def lang_keyboard(type = 0):
     markup = InlineKeyboardMarkup()
     markup.row_width = 3
     
@@ -53,7 +53,10 @@ def lang_keyboard():
     i = 0
 
     for item in available_langs:
-        markup.add(InlineKeyboardButton(available_langs_names[i], callback_data=f'lang:{item}'))
+        if type == 0:
+            markup.add(InlineKeyboardButton(available_langs_names[i], callback_data=f'lang:{item}'))
+        else:
+            markup.add(InlineKeyboardButton(available_langs_names[i], callback_data=f'change_lang:{item}'))
         i+=1
 
     return markup
@@ -84,5 +87,13 @@ def gamefield():
     item9 = types.InlineKeyboardButton("9", callback_data=f'field:9')
     leave = types.InlineKeyboardButton("Сдаться", callback_data=f'field:leave')
     markup.add(item1, item2, item3, item4, item5, item6, item7, item8, item9, leave)
+
+    return markup
+
+def settings_keyboard():
+    markup = types.InlineKeyboardMarkup()
+    markup.add(InlineKeyboardButton('Сменить язык', callback_data=f'settings:change_lang'))
+    markup.add(InlineKeyboardButton('Сбросить статистику', callback_data=f'settings:reset_stats'))
+    markup.add(InlineKeyboardButton('Назад', callback_data=f'settings:back'))
 
     return markup
