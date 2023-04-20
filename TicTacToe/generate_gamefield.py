@@ -1,5 +1,5 @@
 # get_gamefield_obj
-from TicTacToe.db import Database
+from db import Database
 
 
 def return_field(value):
