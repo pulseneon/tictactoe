@@ -84,3 +84,33 @@ winners_count: "\n♦️ Wins:"
 select_language_to_change: "Select the language to change from the available: "
 reset_statistics: "You have successfully reset your profile statistics"
 you_are_back: "You came back"
+
+
+#Buttons
+
+#def main_keyboard
+playB: "Play"
+backToGameB: "Back to the game"
+leaveTheGameB: "Leave the game"
+statisticsB: "Statistics"
+ratingB: "Rating"
+settingsB: "Settings"
+
+#def choose_game_type
+playWithFriendB: "Play with a friend"
+playWithRandomPlayerB: "Play with a random player"
+
+#def cancel_keyboard
+cancelB: "Cancel"
+
+#def ready_keyaboard
+readyB: "Ready"
+notReadyB: "Not ready"
+
+#def gamefield
+giveUpB: "Give up"
+
+#def settings_keyboard
+changeTheLanguage: "Change the language"
+resetStatisticsB: "Reset Statistics"
+backB: "Back"

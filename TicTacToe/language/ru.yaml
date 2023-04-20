@@ -43,7 +43,7 @@ the_zero_move: "Нолик походил, ваша очередь"
 
 #_handle_choose_game_type
 invite_to_player: "Приглашение отправлено игроку"
-waiting_for_answer: ". Ожидаем ответа"
+waiting_for_answer: " Ожидаем ответа"
 invited_you_to_play: "пригласил вас сыграть " 
 mention_a_player: "Упомяни игрока, с которым хочешь поиграть\n\nНапример: ```@username```"
 game_offer_declined: "Предложение игры отклонено"
@@ -84,3 +84,34 @@ winners_count: "\n♦️Побед:"
 select_language_to_change: "Выберите язык для смены из доступных: "
 reset_statistics: "Вы успешно сбросили статистику профиля"
 you_are_back: "Вы вернулись назад"
+
+
+
+#Buttons
+
+#def main_keyboard
+playB: "Играть"
+backToGameB: "Вернуться к игре"
+leaveTheGameB: "Покинуть игру"
+statisticsB: "Статистика"
+ratingB: "Рейтинг"
+settingsB: "Настройки"
+
+#def choose_game_type
+playWithFriendB: "Играть с другом"
+playWithRandomPlayerB: "Играть с рандомным игроком"
+
+#def cancel_keyboard
+cancelB: "Отмена"
+
+#def ready_keyaboard
+readyB: "Готов"
+notReadyB: "Не готов"
+
+#def gamefield
+giveUpB: "Сдаться"
+
+#def settings_keyboard
+changeTheLanguage: "Сменить язык"
+resetStatisticsB: "Сбросить статистику"
+backB: "Назад"

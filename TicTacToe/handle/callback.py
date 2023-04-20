@@ -59,9 +59,9 @@ class Callback:
         match self.arg:
             case 'play':
                 self.bot.send_message(chat_id=self.data.from_user.id, text=self.get_str('type_of_game', self.lang),
-                                      reply_markup=choose_game_type())
+                                      reply_markup=choose_game_type(self.data.from_user.id))
             case 'return_play':
-                self.bot.send_message(chat_id=self.data.from_user.id, text=self.get_str('continue_the_game', self.lang), reply_markup=gamefield())
+                self.bot.send_message(chat_id=self.data.from_user.id, text=self.get_str('continue_the_game', self.lang), reply_markup=gamefield(self.data.from_user.id))
             case 'cancel_game':
                 this_user = self.db.find_user(self.data.from_user.id)
                 self.give_up(this_user)
@@ -110,7 +110,7 @@ class Callback:
             case 'settings':
                 text = f"{self.get_str('settings', self.lang)}"
                 self.bot.send_message(chat_id=self.data.from_user.id, text=text,
-                              reply_markup=settings_keyboard())
+                              reply_markup=settings_keyboard(self.data.from_user.id))
                         
 
     def _handle_field(self):
@@ -125,19 +125,19 @@ class Callback:
 
         if this_user.user_id == game.first_player_id and game.move_player is False:
             # не ход первого игрока
-            self.bot.send_message(chat_id=this_user.user_id, text=f"{self.get_str('not_your_move_now', self.lang)}", reply_markup=gamefield())
+            self.bot.send_message(chat_id=this_user.user_id, text=f"{self.get_str('not_your_move_now', self.lang)}", reply_markup=gamefield(self.data.from_user.id))
             return
 
         elif this_user.user_id == game.second_player_id and game.move_player is True:
             # не ход второго игрока
-            self.bot.send_message(chat_id=this_user.user_id, text=f"{self.get_str('not_your_move_now', self.lang)}", reply_markup=gamefield())
+            self.bot.send_message(chat_id=this_user.user_id, text=f"{self.get_str('not_your_move_now', self.lang)}", reply_markup=gamefield(self.data.from_user.id))
             return
 
         # проверка на занятость клетки
         gamefield_id_from_user = this_user.game_id
         if self.db.get_gamefield(gamefield_id_from_user, self.arg) != 0:
             # клетка уже занята
-            self.bot.send_message(chat_id=this_user.user_id, text=f"{self.get_str('this_cell_occupied', self.lang)}", reply_markup=gamefield())
+            self.bot.send_message(chat_id=this_user.user_id, text=f"{self.get_str('this_cell_occupied', self.lang)}", reply_markup=gamefield(self.data.from_user.id))
             return
 
         # обработка хода
@@ -153,7 +153,7 @@ class Callback:
             self.bot.send_message(chat_id=this_user.user_id, text=f"{self.get_str('you_made_a_move', self.lang)} {self.arg} {self.get_str('cell', self.lang)}", reply_markup=None)
             self.bot.send_message(chat_id=this_user.user_id,
                                   text=self.generate_gamefield.get_gamefield(game.gamefield_id),
-                                  reply_markup=gamefield())
+                                  reply_markup=gamefield(self.data.from_user.id))
             
             # проверка на ничью
             if self.db.check_draw(gamefield_id_from_user) == True:
@@ -167,7 +167,7 @@ class Callback:
             # проверка на победу
             if self.db.check_win(gamefield_id_from_user,1) == True:
                 self.bot.send_message(chat_id=game.second_player_id, text=self.generate_gamefield.get_gamefield(game.gamefield_id),
-                                  reply_markup=gamefield())
+                                  reply_markup=gamefield(self.data.from_user.id))
                 self.bot.send_message(chat_id=this_user.user_id, text=f"{self.get_str('cross_wins', self.lang)}", reply_markup=None)
                 self.bot.send_message(chat_id=game.second_player_id, text=f"{self.get_str('cross_wins', self.lang)}", reply_markup=None)
 
@@ -178,14 +178,14 @@ class Callback:
 
             self.bot.send_message(chat_id=game.second_player_id, text=f"{self.get_str('the_cross_went', self.lang)}", reply_markup=None)
             self.bot.send_message(chat_id=game.second_player_id, text=self.generate_gamefield.get_gamefield(game.gamefield_id),
-                                  reply_markup=gamefield())
+                                  reply_markup=gamefield(self.data.from_user.id))
             
         else:
             # ход нолика
             self.bot.send_message(chat_id=this_user.user_id, text=f"{self.get_str('you_made_a_move', self.lang)} {self.arg} {self.get_str('cell', self.lang)}", reply_markup=None)
             self.bot.send_message(chat_id=this_user.user_id,
                                   text=self.generate_gamefield.get_gamefield(game.gamefield_id),
-                                  reply_markup=gamefield())
+                                  reply_markup=gamefield(self.data.from_user.id))
             
             # проверка на ничью
             if self.db.check_draw(gamefield_id_from_user) == True:
@@ -200,7 +200,7 @@ class Callback:
             # проверка на победу
             if self.db.check_win(gamefield_id_from_user,2) == True:
                 self.bot.send_message(chat_id=game.first_player_id, text=self.generate_gamefield.get_gamefield(game.gamefield_id),
-                                  reply_markup=gamefield())
+                                  reply_markup=gamefield(self.data.from_user.id))
                 self.bot.send_message(chat_id=this_user.user_id, text=f"{self.get_str('zero_wins', self.lang)}", reply_markup=None)
                 self.bot.send_message(chat_id=game.first_player_id, text=f"{self.get_str('zero_wins', self.lang)}", reply_markup=None)
 
@@ -212,7 +212,7 @@ class Callback:
             self.bot.send_message(chat_id=game.first_player_id, text=f"{self.get_str('the_zero_move', self.lang)}", reply_markup=None)
             self.bot.send_message(chat_id=game.first_player_id,
                                   text=self.generate_gamefield.get_gamefield(game.gamefield_id),
-                                  reply_markup=gamefield())
+                                  reply_markup=gamefield(self.data.from_user.id))
                         
 
     def _handle_choose_game_type(self):
@@ -231,10 +231,10 @@ class Callback:
 
                 if find_game_id == null_game and random_game_id == null_game:
                     self.bot.send_message(chat_id=find_user.user_id, text=f"{self.get_str('invite_to_player', self.lang)} {random_user.username}. {self.get_str('waiting_for_answer', self.lang)}",
-                                          reply_markup=cancel_keyboard())
+                                          reply_markup=cancel_keyboard(self.data.from_user.id))
                     self.bot.send_message(chat_id=random_user.user_id,
                                           text=f"{find_user.username} {self.get_str('invited_you_to_play', self.lang)}",
-                                          reply_markup=ready_keyaboard())
+                                          reply_markup=ready_keyaboard(self.data.from_user.id))
 
                     game = self.db.create_game(find_user.user_id, random_user.user_id)
 
@@ -261,7 +261,7 @@ class Callback:
 
                 Logging.info(f'Игра №{game.id} началась')
 
-                self.bot.send_message(chat_id=game.first_player_id, text=f"{self.get_str('the_cross_move', self.lang)}", reply_markup=gamefield())
+                self.bot.send_message(chat_id=game.first_player_id, text=f"{self.get_str('the_cross_move', self.lang)}", reply_markup=gamefield(self.data.from_user.id))
 
                 self.bot.send_message(chat_id=game.second_player_id, text=f"{self.get_str('you_are_zero_waiting_for_move', self.lang)}",
                                       reply_markup=None)
@@ -301,10 +301,10 @@ class Callback:
 
         if find_game_id == null_game and throw_game_id == null_game:
             self.bot.send_message(chat_id=message.from_user.id, text=f"{self.get_str('invitation_sent', self.lang)}",
-                                  reply_markup=cancel_keyboard())
+                                  reply_markup=cancel_keyboard(self.data.from_user.id))
             self.bot.send_message(chat_id=find_user.user_id,
                                   text=f"{throw_user.username} {self.get_str('invited_you_to_play', self.lang)}",
-                                  reply_markup=ready_keyaboard())
+                                  reply_markup=ready_keyaboard(self.data.from_user.id))
 
             game = self.db.create_game(find_user.user_id, throw_user.user_id)
 

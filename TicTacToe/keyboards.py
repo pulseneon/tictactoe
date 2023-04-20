@@ -8,18 +8,21 @@ from language.langs import Language
 
 def main_keyboard(user_id):
     db = Database()
+    lang = Language()
+
     markup = InlineKeyboardMarkup()
     markup.row_width = 3
 
     user_obj = db.find_user(user_id)
+    get_str = lang.get_string_by_lang
 
     if user_obj.game_id == -1:
-        markup.add(InlineKeyboardButton('Играть', callback_data=f'main:play')) # напишите его nickname или telegram id
+        markup.add(InlineKeyboardButton(get_str('playB',user_obj.lang), callback_data=f'main:play')) # напишите его nickname или telegram id
     else:
-        markup.add(InlineKeyboardButton('Вернуться к игре', callback_data=f'main:return_play'))
-        markup.add(InlineKeyboardButton('Покинуть игру', callback_data=f'main:cancel_game'))
-    markup.add(InlineKeyboardButton('Статистика', callback_data=f'main:stats')) # статистика профиля
-    markup.add(InlineKeyboardButton('Рейтинг', callback_data=f'main:rate')) # рейтинг всех игроков 
+        markup.add(InlineKeyboardButton(get_str('backToGameB',user_obj.lang), callback_data=f'main:return_play'))
+        markup.add(InlineKeyboardButton(get_str('leaveTheGameB',user_obj.lang), callback_data=f'main:cancel_game'))
+    markup.add(InlineKeyboardButton(get_str('statisticsB',user_obj.lang), callback_data=f'main:stats')) # статистика профиля
+    markup.add(InlineKeyboardButton(get_str('ratingB',user_obj.lang), callback_data=f'main:rate')) # рейтинг всех игроков 
     '''
     Пример:
     1. Lesnov  - 500 MMR
@@ -33,13 +36,19 @@ def main_keyboard(user_id):
     ...
     201. {ник_пользователя} - {его} ММР
     '''
-    markup.add(InlineKeyboardButton('Настройки', callback_data=f'main:settings')) # сменить язык / сброс статистики
+    markup.add(InlineKeyboardButton(get_str('settingsB',user_obj.lang), callback_data=f'main:settings')) # сменить язык / сброс статистики
     return markup
 
-def choose_game_type():
+def choose_game_type(user_id):
+    db = Database()
+    lang = Language()
+
+    user_obj = db.find_user(user_id)
+    get_str = lang.get_string_by_lang
+
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton('Играть с другом', callback_data=f'choose_game_type:find'))
-    markup.add(InlineKeyboardButton('Играть с рандомным игроком', callback_data=f'choose_game_type:random'))
+    markup.add(InlineKeyboardButton(get_str('playWithFriendB',user_obj.lang), callback_data=f'choose_game_type:find'))
+    markup.add(InlineKeyboardButton(get_str('playWithRandomPlayerB',user_obj.lang), callback_data=f'choose_game_type:random'))
     
     return markup
 
@@ -61,20 +70,38 @@ def lang_keyboard(type = 0):
 
     return markup
 
-def cancel_keyboard():
+def cancel_keyboard(user_id):
+    db = Database()
+    lang = Language()
+
+    user_obj = db.find_user(user_id)
+    get_str = lang.get_string_by_lang
+
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton('Отмена', callback_data=f'cancel_game:true'))
+    markup.add(InlineKeyboardButton(get_str('cancelB',user_obj.lang), callback_data=f'cancel_game:true'))
 
     return markup
 
-def ready_keyaboard():
+def ready_keyaboard(user_id):
+    db = Database()
+    lang = Language()
+
+    user_obj = db.find_user(user_id)
+    get_str = lang.get_string_by_lang
+
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton('Готов', callback_data=f'ready:true')) 
-    markup.add(InlineKeyboardButton('Не готов', callback_data=f'ready:false'))
+    markup.add(InlineKeyboardButton(get_str('readyB',user_obj.lang), callback_data=f'ready:true')) 
+    markup.add(InlineKeyboardButton(get_str('notReadyB',user_obj.lang), callback_data=f'ready:false'))
     
     return markup
 
-def gamefield():
+def gamefield(user_id):
+    db = Database()
+    lang = Language()
+
+    user_obj = db.find_user(user_id)
+    get_str = lang.get_string_by_lang
+
     markup = types.InlineKeyboardMarkup()
     item1 = types.InlineKeyboardButton("1", callback_data=f'field:1')
     item2 = types.InlineKeyboardButton("2", callback_data=f'field:2')
@@ -85,15 +112,21 @@ def gamefield():
     item7 = types.InlineKeyboardButton("7", callback_data=f'field:7')
     item8 = types.InlineKeyboardButton("8", callback_data=f'field:8')
     item9 = types.InlineKeyboardButton("9", callback_data=f'field:9')
-    leave = types.InlineKeyboardButton("Сдаться", callback_data=f'field:leave')
+    leave = types.InlineKeyboardButton(get_str('giveUpB',user_obj.lang), callback_data=f'field:leave')
     markup.add(item1, item2, item3, item4, item5, item6, item7, item8, item9, leave)
 
     return markup
 
-def settings_keyboard():
+def settings_keyboard(user_id):
+    db = Database()
+    lang = Language()
+
+    user_obj = db.find_user(user_id)
+    get_str = lang.get_string_by_lang
+
     markup = types.InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton('Сменить язык', callback_data=f'settings:change_lang'))
-    markup.add(InlineKeyboardButton('Сбросить статистику', callback_data=f'settings:reset_stats'))
-    markup.add(InlineKeyboardButton('Назад', callback_data=f'settings:back'))
+    markup.add(InlineKeyboardButton(get_str('changeTheLanguage',user_obj.lang), callback_data=f'settings:change_lang'))
+    markup.add(InlineKeyboardButton(get_str('resetStatisticsB',user_obj.lang), callback_data=f'settings:reset_stats'))
+    markup.add(InlineKeyboardButton(get_str('backB',user_obj.lang), callback_data=f'settings:back'))
 
     return markup
