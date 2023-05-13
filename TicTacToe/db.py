@@ -352,7 +352,6 @@ class Database:
         return False
 
     def check_draw(self, gamefield_id) -> object:
-
         fields = [self.get_gamefield(gamefield_id, '1'),
                   self.get_gamefield(gamefield_id, '2'),
                   self.get_gamefield(gamefield_id, '3'),
