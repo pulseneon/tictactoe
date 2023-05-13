@@ -1,7 +1,116 @@
 available: true
 language: "English"
 
-# set languages
+# user registration
 language_suggestion: "Choose a language from the suggested ones"
 successfully_registered: "You are registered"
+lang_changed: "You have successfully changed the language"
+
+
+# main menu
 type_of_game: "Choose the type of game"
+
+continue_the_game: "Continue the game"
+
+stats: "Player statistics @"
+user_id: "User ID: "
+game_count: "Number of games played: "
+wins_count: "Number of games won: "
+lose_count: "Number of games lost: "
+rate_in_state: "Rating: "
+
+waiting: "Expect..."
+.@: ". @"
+—: " — "
+points: "..."
+you_are_on: "You are in "
+place_your_rating: "place, your rating: "
+
+settings: "Settings"
+
+
+#_handle_field
+not_your_move_now: "It's not your turn now"
+this_cell_occupied: "This cell is already occupied, choose another one"
+you_made_a_move: "You made a move on"
+cell: "cell"
+draw: "Draw"
+cross_wins: "The cross won!"
+the_cross_went: "The cross has made a move, it's your turn"
+zero_wins: "Zero won!"
+the_zero_move: "Zero has made a move, you turn"
+
+
+#_handle_choose_game_type
+invite_to_player: "The invitation has been sent to the player"
+waiting_for_answer: ". We are waiting for a response"
+invited_you_to_play: "invited you to play " 
+mention_a_player: "Mention the player you want to play with\n\nFor example: ```@username```"
+game_offer_declined: "Game offer rejected"
+
+
+#_ready_to_play
+the_cross_move: "You are a cross, your move"
+you_are_zero_waiting_for_move: "You are a zero, wait for the player to make a move"
+
+
+#play_register
+no_player_was_found: "the player was not found."
+invitation_sent: "The invitation has been sent. We are waiting for a response."
+invited_you_to_play: "invited you to play with him." 
+some_of_you_in_the_game: "Some of you are already in the game\n(to exit it, write  `/cancel_game`"
+
+
+#give_up
+you_have_surrendered: "You have successfully surrendered"
+your_opponent_surrendered: "Your opponent has given up"
+
+
+#stats_after_game
+stats_changed_win: "Your stats changed after the game: \n🔺 Rating:"
+win10: "(+10)\n🔺 Games:"
+win1: "(+1)\n🔺 Wins:"
+win1.1: "(+1)"
+stats_changed_lose: "Your stats changed after the game: \n🔻 Rating:"
+los10: "(-10)\n🔺 Games:"
+los1: "(+1)\n🔺 Loses:"
+los1.1: "(+1)"
+statistics_have_not_changed: "Your stats changed after the game: \n♦️ Rating:"
+games_count: "\n♦️ Games:"
+winners_count: "\n♦️ Wins:"
+
+
+#_handle_settings
+select_language_to_change: "Select the language to change from the available: "
+reset_statistics: "You have successfully reset your profile statistics"
+you_are_back: "You came back"
+
+
+#Buttons
+
+#def main_keyboard
+playB: "Play"
+backToGameB: "Back to the game"
+leaveTheGameB: "Leave the game"
+statisticsB: "Statistics"
+ratingB: "Rating"
+settingsB: "Settings"
+
+#def choose_game_type
+playWithFriendB: "Play with a friend"
+playWithRandomPlayerB: "Play with a random player"
+
+#def cancel_keyboard
+cancelB: "Cancel"
+
+#def ready_keyaboard
+readyB: "Ready"
+notReadyB: "Not ready"
+
+#def gamefield
+giveUpB: "Give up"
+
+#def settings_keyboard
+changeTheLanguage: "Change the language"
+resetStatisticsB: "Reset Statistics"
+backB: "Back"

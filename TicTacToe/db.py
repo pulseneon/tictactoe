@@ -1,6 +1,8 @@
 import datetime
 import logging
 import os
+from typing import Type
+
 from dotenv import load_dotenv
 from sqlalchemy import BigInteger, Boolean, Column, DateTime, Integer, String, create_engine, ForeignKey, func
 from sqlalchemy.orm import DeclarativeBase, relationship, sessionmaker
@@ -90,25 +92,6 @@ class Database:
 
         return None
 
- 
-    def find_game_id_by_user(self, user_id) -> Game:
-        Session = sessionmaker(autoflush=False, bind=self.engine)
-        with Session(autoflush=False, bind=self.engine) as db:
-            game_id = db.query(Game).filter(Game.first_player_id == user_id).first()
-            db.close()
-            if game_id is not None:
-                return game_id.gamefield_id
-        return None
-
-    def add_to_game(self, game_id, user_id) -> object:
-        user = self.find_user(user_id)
-        user.game_id = game_id
-        with sessionmaker(autoflush=False, bind=self.engine)() as db:
-            db.merge(user)
-
-        db.close()
-        return user
-
     def find_user_by_tag(self, user_tag) -> User:
         Session = sessionmaker(autoflush=False, bind=self.engine)
         user_tag = user_tag[1:]  # убираем @
@@ -135,6 +118,10 @@ class Database:
                 return user
         return None
 
+    def get_random_user(self) -> Type[User] | None:
+        session = sessionmaker(autoflush=False, bind=self.engine)
+        with session() as session:
+            return session.query(User).filter(User.game_id == -1).order_by(func.random()).first()
 
     def create_game(self, user_id_1, user_id_2) -> Game:
         null_game_id = -1
@@ -152,9 +139,9 @@ class Database:
             db.commit()
 
             new_game = Game(
-                gamefield_id = new_gamefield.id,
-                first_player_id = user_id_1,
-                second_player_id = user_id_2
+                gamefield_id=new_gamefield.id,
+                first_player_id=user_id_1,
+                second_player_id=user_id_2
             )
 
             db.add(new_game)
@@ -182,7 +169,7 @@ class Database:
                 return game
         return None
 
-    def cancel_game(self, game_id) :
+    def cancel_game(self, game_id):
         return_list = []
 
         Session = sessionmaker(autoflush=False, bind=self.engine)
@@ -202,7 +189,6 @@ class Database:
 
             return return_list
 
-
     def find_gamefield(self, gamefield_id) -> Gamefield:
         Session = sessionmaker(autoflush=False, bind=self.engine)
         with Session(autoflush=False, bind=self.engine) as db:
@@ -211,16 +197,6 @@ class Database:
             if gamefield is not None:
                 return gamefield
         return None
-
-    def check_move_player_status(self) -> object:
-        Session = sessionmaker(autoflush=False, bind=self.engine)
-        with Session(autoflush=False, bind=self.engine) as db:
-            player = db.query(Game).filter(Game.move_player).first()
-            db.close()
-            if player.move_player is not None:
-                return player.move_player
-
-            return False
 
     def update_move_player_status(self, game) -> object:
         Session = sessionmaker(autoflush=False, bind=self.engine)
@@ -231,7 +207,7 @@ class Database:
                     game.move_player = not game.move_player
                     session.merge(game)
                     session.commit()
-                
+
             return Game
 
     def edit_gamefield(self, gamefield_id, field_obj, value) -> object:
@@ -239,180 +215,162 @@ class Database:
         # field.field_obj = value
         Session = sessionmaker(autoflush=False, bind=self.engine)
         match field_obj:
-                case '1':
-                    with Session() as session:
-                        field.field1 = value
-                        session.merge(field)
-                        session.commit()
+            case '1':
+                with Session() as session:
+                    field.field1 = value
+                    session.merge(field)
+                    session.commit()
 
-                case '2':
-                    with Session() as session:
-                        field.field2 = value
-                        session.merge(field)
-                        session.commit()
+            case '2':
+                with Session() as session:
+                    field.field2 = value
+                    session.merge(field)
+                    session.commit()
 
-                case '3':
-                    with Session() as session:
-                        field.field3 = value
-                        session.merge(field)
-                        session.commit()
+            case '3':
+                with Session() as session:
+                    field.field3 = value
+                    session.merge(field)
+                    session.commit()
 
-                case '4':
-                    with Session() as session:
-                        field.field4 = value
-                        session.merge(field)
-                        session.commit()
+            case '4':
+                with Session() as session:
+                    field.field4 = value
+                    session.merge(field)
+                    session.commit()
 
-                case '5':
-                    with Session() as session:
-                        field.field5 = value
-                        session.merge(field)
-                        session.commit()
+            case '5':
+                with Session() as session:
+                    field.field5 = value
+                    session.merge(field)
+                    session.commit()
 
-                case '6':
-                    with Session() as session:
-                        field.field6 = value
-                        session.merge(field)
-                        session.commit()
+            case '6':
+                with Session() as session:
+                    field.field6 = value
+                    session.merge(field)
+                    session.commit()
 
-                case '7':
-                    with Session() as session:
-                        field.field7 = value
-                        session.merge(field)
-                        session.commit()
+            case '7':
+                with Session() as session:
+                    field.field7 = value
+                    session.merge(field)
+                    session.commit()
 
-                case '8':
-                    with Session() as session:
-                        field.field8 = value
-                        session.merge(field)
-                        session.commit()
+            case '8':
+                with Session() as session:
+                    field.field8 = value
+                    session.merge(field)
+                    session.commit()
 
-                case '9':
-                    with Session() as session:
-                        field.field9 = value
-                        session.merge(field)
-                        session.commit()
-                
+            case '9':
+                with Session() as session:
+                    field.field9 = value
+                    session.merge(field)
+                    session.commit()
 
         return field
 
-
     def get_gamefield(self, gamefield_id, field_obj) -> object:
         field = self.find_gamefield(gamefield_id)
-        
+
         Session = sessionmaker(autoflush=False, bind=self.engine)
         match field_obj:
-                case '1':
-                    with Session() as session:
-                        if field.field1 is not 0:
-                            return field.field1
+            case '1':
+                with Session() as session:
+                    if field.field1 != 0:
+                        return field.field1
 
-                case '2':
-                    with Session() as session:
-                        if field.field2 is not 0:
-                            return field.field2
-                
-                case '3':
-                    with Session() as session:
-                        if field.field3 is not 0:
-                            return field.field3
+            case '2':
+                with Session() as session:
+                    if field.field2 != 0:
+                        return field.field2
 
-                case '4':
-                    with Session() as session:
-                        if field.field4 is not 0:
-                            return field.field4 
+            case '3':
+                with Session() as session:
+                    if field.field3 != 0:
+                        return field.field3
 
-                case '5':
-                    with Session() as session:
-                        if field.field5 is not 0:
-                            return field.field5
+            case '4':
+                with Session() as session:
+                    if field.field4 != 0:
+                        return field.field4
 
-                case '6':
-                    with Session() as session:
-                        if field.field6 is not 0:
-                            return field.field6
+            case '5':
+                with Session() as session:
+                    if field.field5 != 0:
+                        return field.field5
 
-                case '7':
-                    with Session() as session:
-                        if field.field7 is not 0:
-                            return field.field7
+            case '6':
+                with Session() as session:
+                    if field.field6 != 0:
+                        return field.field6
 
-                case '8':
-                    with Session() as session:
-                        if field.field8 is not 0:
-                            return field.field8
+            case '7':
+                with Session() as session:
+                    if field.field7 != 0:
+                        return field.field7
 
-                case '9':
-                    with Session() as session:
-                        if field.field9 is not 0:
-                            return field.field9
+            case '8':
+                with Session() as session:
+                    if field.field8 != 0:
+                        return field.field8
+
+            case '9':
+                with Session() as session:
+                    if field.field9 != 0:
+                        return field.field9
 
         return 0
 
-    def check_win(self,gamefield_id,player) ->object:
-        
-        win_conditions = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8],
-        [0, 3, 6], [1, 4, 7], [2, 5, 8],
-        [0, 4, 8], [2, 4, 6]
-    ]
+    def get_gamefield_obj(self, gamefield_id) -> Gamefield:
+        Session = sessionmaker(autoflush=False, bind=self.engine)
+        with Session() as session:
+            return session.query(Gamefield).filter(Gamefield.id == gamefield_id).first()
 
-        fields = [self.get_gamefield(gamefield_id,'1'),
-        self.get_gamefield(gamefield_id,'2'),
-        self.get_gamefield(gamefield_id,'3'),
-        self.get_gamefield(gamefield_id,'4'),
-        self.get_gamefield(gamefield_id,'5'),
-        self.get_gamefield(gamefield_id,'6'),
-        self.get_gamefield(gamefield_id,'7'),
-        self.get_gamefield(gamefield_id,'8'),
-        self.get_gamefield(gamefield_id,'9')]
+    def check_win(self, gamefield_id, player) -> object:
+
+        win_conditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ]
+
+        fields = [self.get_gamefield(gamefield_id, '1'),
+                  self.get_gamefield(gamefield_id, '2'),
+                  self.get_gamefield(gamefield_id, '3'),
+                  self.get_gamefield(gamefield_id, '4'),
+                  self.get_gamefield(gamefield_id, '5'),
+                  self.get_gamefield(gamefield_id, '6'),
+                  self.get_gamefield(gamefield_id, '7'),
+                  self.get_gamefield(gamefield_id, '8'),
+                  self.get_gamefield(gamefield_id, '9')]
 
         for index in win_conditions:
             if fields[index[0]] == player and fields[index[1]] == player and fields[index[2]] == player:
-                return True       
+                return True
         return False
 
-
-    def check_draw(self,gamefield_id) ->object:
-
-        fields = [self.get_gamefield(gamefield_id,'1'),
-        self.get_gamefield(gamefield_id,'2'),
-        self.get_gamefield(gamefield_id,'3'),
-        self.get_gamefield(gamefield_id,'4'),
-        self.get_gamefield(gamefield_id,'5'),
-        self.get_gamefield(gamefield_id,'6'),
-        self.get_gamefield(gamefield_id,'7'),
-        self.get_gamefield(gamefield_id,'8'),
-        self.get_gamefield(gamefield_id,'9')]
+    def check_draw(self, gamefield_id) -> object:
+        fields = [self.get_gamefield(gamefield_id, '1'),
+                  self.get_gamefield(gamefield_id, '2'),
+                  self.get_gamefield(gamefield_id, '3'),
+                  self.get_gamefield(gamefield_id, '4'),
+                  self.get_gamefield(gamefield_id, '5'),
+                  self.get_gamefield(gamefield_id, '6'),
+                  self.get_gamefield(gamefield_id, '7'),
+                  self.get_gamefield(gamefield_id, '8'),
+                  self.get_gamefield(gamefield_id, '9')]
 
         for index in fields:
             if index == 0:
-                return False 
+                return False
         return True
 
-    def calc_rating(self,player_id) -> object:
-        rating_list = []
-        index = 1
-        while True:
-            user = self.get_users_by_id(index)
-            if user is not None:
-                rating_list.append(user)
-                index += 1
-            else:
-                break
-        
-        rating_list.sort(key = lambda x: x.rating,reverse=True)
-
-        return rating_list
-
-    def get_users_by_id(self,index) -> User:
+    def calc_rating(self, player_id):
         Session = sessionmaker(autoflush=False, bind=self.engine)
-        with Session(autoflush=False, bind=self.engine) as db:
-            user = db.query(User).filter(User.id == index).first()
-            db.close()
-            if user is not None:
-                return user
-        return None
+        with Session() as session:
+            return session.query(User).order_by(User.rating.desc()).limit(10).all()
 
     def get_users(self):
         Session = sessionmaker(autoflush=False, bind=self.engine)
@@ -440,20 +398,49 @@ class Database:
             else:
                 win_user = session.query(User).filter(User.user_id == game.first_player_id).first()
 
-
             lose_user.lose_count = lose_user.lose_count + 1
-            lose_user.rating = lose_user.rating - 5
+            lose_user.rating = lose_user.rating - 10
             lose_user.games_count = lose_user.games_count + 1
             win_user.games_count = win_user.games_count + 1
             win_user.wins_count = win_user.wins_count + 1
-            win_user.rating = win_user.rating + 5
+            win_user.rating = win_user.rating + 10
 
             session.commit()
+
+    def change_lang(self, user_id, lang):
+        try:
+            Session = sessionmaker(autoflush=False, bind=self.engine)
+            with Session() as session:
+                user = session.query(User).filter(User.user_id == user_id).first()
+                user.lang = lang
+                session.commit()
+        except Exception as ex:
+            Logging.error(f'Ошибка изменения языка пользователя: {str(ex)}')
+
+    def reset_stats(self, user_id):
+        try:
+            Session = sessionmaker(autoflush=False, bind=self.engine)
+            with Session() as session:
+                user = session.query(User).filter(User.user_id == user_id).first()
+
+                Logging.debug(f'{user.games_count}')
+                if user is None:
+                    raise Exception('user is none')
+                user.games_count = 0
+                user.rating = 100
+                user.lose_count = 0
+                user.wins_count = 0
+                Logging.debug(f'{user.games_count}')
+
+                session.commit()
+                Logging.debug(f'закамитил')
+        except Exception as ex:
+            Logging.error(f'Ошибка ресета статистики пользователя: {str(ex)}')
 
     def finish_game(self, first_player_id, second_player_id, winner):
         try:
             Session = sessionmaker(autoflush=False, bind=self.engine)
-            with Session() as session:
+            with Session() as session: # 0 - ничья 1 крестик 2 нолик
                 # Find the user objects for the two players
                 first_player_obj = self.find_user(first_player_id)
                 second_player_obj = self.find_user(second_player_id)
@@ -465,7 +452,7 @@ class Database:
                 first_player_obj.games_count += 1
                 second_player_obj.games_count += 1
 
-                if winner == 1:
+                if winner == 1: # победил крестик
                     first_player_obj.wins_count += 1
                     second_player_obj.lose_count += 1
                 elif winner == 2:

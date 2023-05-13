@@ -1,7 +1,116 @@
 available: true
 language: "Deutsch"
 
-# set languages
+# user registration
 language_suggestion: "Wählen Sie eine Sprache aus den vorgeschlagenen"
-curr_chat_lang: "s"
-set_chat_lang: ""
+successfully_registered: "Sie sind registriert"
+lang_changed: "Sie haben die Sprache erfolgreich geändert"
+
+
+# main menu
+type_of_game: "Wählen Sie den Spieltyp aus"
+
+continue_the_game: "Weiterspielen"
+
+stats: "Spielerstatistiken @"
+user_id: "Benutzer-ID: "
+game_count: "Anzahl der gespielten Spiele:: "
+wins_count: "Anzahl der gewonnenen Spiele: "
+lose_count: "Anzahl der verlorenen Spiele: "
+rate_in_state: "Bewertung: "
+
+waiting: "Erwartet..."
+.@: ". @"
+—: " — "
+points: "..."
+you_are_on: "Sie sind auf Platz "
+place_your_rating: "Ihre Bewertung beträgt : "
+
+settings: "Die Einstellungen"
+
+
+#_handle_field
+not_your_move_now: "Jetzt ist nicht dein Zug"
+this_cell_occupied: "Dieser Käfig ist bereits belegt, wähle einen anderen aus"
+you_made_a_move: "Sie haben einen Zug auf gemacht"
+cell: "zelle"
+draw: "Unentschieden"
+cross_wins: "Das Kreuz hat gewonnen!"
+the_cross_went: "Das Kreuz sah aus, ihr seid dran"
+zero_wins: "Der Nullachter hat gewonnen!"
+the_zero_move: "Es sah aus, als ob du an der Reihe wärst"
+
+
+#_handle_choose_game_type
+invite_to_player: "Приглашение отправлено игроку"
+waiting_for_answer: ". Warten auf eine Antwort"
+invited_you_to_play: "ich habe dich eingeladen zu spielen " 
+mention_a_player: "Erwähne den Spieler, mit dem du spielen möchtest\n\nZum Beispiel: ```@username```"
+game_offer_declined: "Spielangebot abgelehnt"
+
+
+#_ready_to_play
+the_cross_move: "Du bist ein Kreuz, dein Zug"
+you_are_zero_waiting_for_move: "Warten Sie, bis der Spieler einen Zug macht"
+
+
+#play_register
+no_player_was_found: "kein Spieler wurde gefunden."
+invitation_sent: "Die Einladung wurde gesendet. Warten auf eine Antwort."
+invited_you_to_play: "ich habe dich eingeladen, mit ihm zu spielen." 
+some_of_you_in_the_game: "Einer von euch ist bereits im Spiel\n(um es zu verlassen, schreiben Sie `/cancel_game`"
+
+
+#give_up
+you_have_surrendered: "Sie haben erfolgreich aufgegeben"
+your_opponent_surrendered: "Ihr Gegner hat aufgegeben"
+
+
+#stats_after_game
+stats_changed_win: "Deine Statistiken haben sich nach dem Spiel geändert: \n🔺 Bewertung:"
+win10: "(+10)\n🔺 Spiele:"
+win1: "(+1)\n🔺 Siege:"
+win1.1: "(+1)"
+stats_changed_lose: "Deine Statistiken haben sich nach dem Spiel geändert: \n🔻 Bewertung:"
+los10: "(-10)\n🔺 Spiele:"
+los1: "(+1)\n🔺 Поражений:"
+los1.1: "(+1)"
+statistics_have_not_changed: "Deine Statistiken haben sich nach dem Spiel geändert: \n♦️ Bewertung:"
+games_count: "\n♦️ Spiele:"
+winners_count: "\n♦️ Siege:"
+
+
+#_handle_settings
+select_language_to_change: "Wählen Sie die Sprache aus, die Sie ändern möchten: "
+reset_statistics: "Sie haben Ihre Profilstatistiken erfolgreich zurückgesetzt"
+you_are_back: "Sie sind zurückgekehrt"
+
+
+#Buttons
+
+#def main_keyboard
+playB: "Spielen"
+backToGameB: "Zurück zum Spiel"
+leaveTheGameB: "Spiel verlassen"
+statisticsB: "Statistik"
+ratingB: "Bewertung"
+settingsB: "Die Einstellungen"
+
+#def choose_game_type
+playWithFriendB: "Mit einem Freund spielen"
+playWithRandomPlayerB: "Spielen Sie mit einem zufälligen Spieler"
+
+#def cancel_keyboard
+cancelB: "Annullierung"
+
+#def ready_keyaboard
+readyB: "Bereit"
+notReadyB: "Nicht bereit"
+
+#def gamefield
+giveUpB: "Kapitulieren"
+
+#def settings_keyboard
+changeTheLanguage: "Sprache ändern"
+resetStatisticsB: "Statistiken zurücksetzen"
+backB: "Zurück"
